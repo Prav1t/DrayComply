@@ -91,3 +91,16 @@
 - New: everything under `apps/web`. Changed: root `package.json` (next, react), `.gitignore`.
 - Project knowledge: nothing replaced. Pushed to GitHub.
 - DECISIONS 73 to 79. NEEDS_HUMAN 17 to 20.
+
+## Template builder. DONE 2026-11-16
+
+- In the app, step 2 now has "Build a template from these files" / "Edit this template".
+- For each of the nine tables: map it to a file (and sheet, header row, separator) or state there are no such records.
+  For each field: pick the column, the format, how the values found in that column map, and whether a blank is accepted.
+- Live list of what is still unsettled, from the same parser ingest uses. "Use this template" and "Save template (JSON)".
+- `inspectFile` added to ingest. Builder state model in `apps/web/lib/builder.ts`.
+- `next build` succeeds. NOT clicked through in a browser (NEEDS_HUMAN 19, 20).
+- Tests: 367 passing in 27 files.
+- New: `packages/ingest/src/inspect.ts` (+ test), `apps/web/lib/builder.ts` (+ test), `apps/web/components/TemplateBuilder.tsx`.
+  Changed: `packages/ingest/src/index.ts`, `apps/web/components/Workbench.tsx`, `apps/web/app/globals.css`.
+- DECISIONS 84 to 89.

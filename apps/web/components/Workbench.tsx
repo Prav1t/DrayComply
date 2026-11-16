@@ -6,6 +6,7 @@ import type { RoundingMode, Verdict } from '../../../packages/engine/src/index';
 import { formatDelta, formatCents, recordsText, renderPdf, verdictText } from '../../../packages/report/src/index';
 import { sampleFiles, sampleTemplate } from '../../../packages/ingest/src/testing/sample';
 import { runPipeline, type PipelineResult } from '../lib/pipeline';
+import { TemplateBuilder } from './TemplateBuilder';
 
 const PILL: Readonly<Record<Verdict, string>> = {
   no_shortfall_detected: 'ok', shortfall_aggregate: 'bad', shortfall_segregated_only: 'bad', insufficient_data: 'warn',
@@ -23,6 +24,7 @@ export function Workbench() {
   const [template, setTemplate] = useState<unknown>(null);
   const [templateName, setTemplateName] = useState('');
   const [templateError, setTemplateError] = useState('');
+  const [building, setBuilding] = useState(false);
   const [licenseeName, setLicenseeName] = useState('');
   const [licenseeId, setLicenseeId] = useState('');
   const [asOf, setAsOf] = useState(today);
@@ -97,6 +99,14 @@ export function Workbench() {
         {templateName !== '' && <p className="muted">Using: {templateName}</p>}
         {templateError !== '' && <div className="banner bad">{templateError}</div>}
         <p className="muted">The template says which column feeds each field and what a blank cell means. Nothing is guessed from the files.</p>
+        <button type="button" className="secondary" disabled={files.length === 0} onClick={() => setBuilding(b => !b)}>
+          {building ? 'Close the builder' : template === null ? 'Build a template from these files' : 'Edit this template'}
+        </button>
+        {files.length === 0 && <span className="muted"> Add files first.</span>}
+        {building && (
+          <TemplateBuilder key={templateName} files={files} initial={template}
+            onUse={(built, name) => { setTemplate(built); setTemplateName(name); setTemplateError(''); setBuilding(false); setResult(null); }} />
+        )}
       </section>
 
       <section className="card">

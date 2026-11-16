@@ -38,3 +38,11 @@ details { margin-top: 6px; }
 details summary { cursor: pointer; color: var(--accent); font-size: 13px; }
 details p { margin: 6px 0; font-size: 13px; }
 code { font-size: 12px; word-break: break-all; }
+
+.builder { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 14px; }
+.table-editor { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 10px 0; background: #fbfcfb; }
+.table-editor > summary { color: var(--ink); font-size: 14px; margin-bottom: 8px; }
+.table-editor select, .table-editor input[type="text"] { min-width: 140px; margin: 2px 6px 2px 0; }
+.map-row { font-size: 13px; margin: 3px 0; }
+.map-row code { background: #eef1f3; padding: 1px 5px; border-radius: 4px; margin-right: 4px; }
+label.check { display: flex; gap: 6px; align-items: center; color: var(--ink); }

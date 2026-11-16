@@ -124,3 +124,14 @@ Each entry: the choice, the alternative, one line of reasoning. Newest section l
 | 81 | Its trip tables were transcribed again from the second PDF, not copied from the 2022 file | Reuse the 2022 tables | The two files now check each other cell for cell; a test enforces it |
 | 82 | April 2020 fuel surcharge (6%) added to the supplement from the correcting bulletin, with no reference price | Leave 2020 empty | It is a primary source for one month. Every other 2020 month stays a gap |
 | 83 | Two more tests re-pointed because the oldest schedule moved from July 2022 to April 2020 | Leave red | Same engine behaviour asserted, one day before the new oldest schedule |
+
+## 2026-11-16: template builder (chosen over the pre-2019 Regulation)
+
+| # | Choice | Alternative | Why |
+|---|---|---|---|
+| 84 | Built the template builder before transcribing the pre-2019 Regulation | Regulation first | Without a builder nobody can run their own files. The Regulation years would still mostly return insufficient data: no published fuel percentages and no overtime rule exist for them |
+| 85 | The builder never pre-selects a column, even when a header matches a field name | Auto-map by header name | A wrong guess would be silent. The user picks every field; the parser lists what is left |
+| 86 | A date column cannot be used until its format is chosen; money and duration show a visible default (dollars, decimal hours) | Require a choice for every format | 07/06/2026 means two different days; a money unit mistake is caught by the two-decimal rule |
+| 87 | The builder shows the distinct values found in a column so each can be mapped by hand | Free-text mapping only | Reporting what is in the file is not inference; deciding what it means stays with the user |
+| 88 | `inspectFile` lives in `packages/ingest`; the form state and its conversion live in `apps/web/lib/builder.ts`, both tested | All in the component | The component cannot be tested here |
+| 89 | Validation is the template parser's, shown live; the builder adds no rules of its own | A second validator in the UI | One source of truth for what a valid template is |

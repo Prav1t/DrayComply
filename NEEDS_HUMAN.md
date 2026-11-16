@@ -77,6 +77,7 @@ Things only a person can get, check or decide. Nothing here was filled in from a
     and whether users sign in. Each needs an account or spends money, so I have not done any of them.
 19. **The app's click-through has not been tested in a real browser.** It builds, the page renders, and the pipeline behind the
     button is unit-tested. Run `npx next dev apps/web`, click "Load the built-in sample", then "Run calculation".
-20. **A template builder UI does not exist.** Templates are JSON written by hand from `packages/ingest/src/specs.ts`.
+20. **The template builder exists but has not been clicked through in a real browser** (same limit as item 19). Try it with the
+    built-in sample: load the sample, click "Edit this template", change a mapping, "Use this template", then run.
 
 ## D. Nothing in this session spent money, created an account, contacted anyone, published or deployed.
