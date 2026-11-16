@@ -65,8 +65,9 @@
 - `renderPdf(binder)` lays it out as a Letter-size PDF with `pdf-lib`. Same binder, same bytes.
 - The header states "UNVERIFIED RATES WERE USED" whenever an unverified schedule priced anything.
 - I rendered a sample (one short trip, a missing PMR line, one orphan row) and read all four pages.
-- Four rules broken on purpose; a test failed each time.
-- Tests: 341 passing in 23 files.
+- Four rules broken on purpose. Three were caught; netting surpluses into the shortfall total was not, so I added a test for it
+  and confirmed it now fails when the rule is broken.
+- Tests: 342 passing in 23 files.
 - New: everything under `packages/report`. Changed: root `package.json` (pdf-lib).
 - Project knowledge: nothing replaced. Pushed to GitHub.
 - DECISIONS 64 to 72. No new NEEDS_HUMAN entries.

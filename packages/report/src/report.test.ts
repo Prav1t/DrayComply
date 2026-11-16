@@ -66,6 +66,11 @@ describe('binder', () => {
     expect(short.summary.byVerdict.shortfall_aggregate).toBe(1);
     expect(short.findings.map(f => f.ruleId)).toContain('TRIP_RATE_BELOW_MINIMUM');
   });
+  it('never nets one driver\'s surplus against another driver\'s shortfall in the totals', () => {
+    // D1 is paid $5.00 over; IO1's trip is $19.00 short. The total short is $19.00, not $14.00.
+    const mixed = binderFor({ 'payments.csv': (SAMPLE_CSV['payments.csv'] ?? '').replace('"$293.76"', '"$298.76"').replace('IO1,P1,Trip,139.00', 'IO1,P1,Trip,120.00') });
+    expect([mixed.summary.aggregateShortfallCents, mixed.summary.segregatedShortfallCents]).toEqual([1_900, 1_900]);
+  });
   it('states in the header that unverified rates were used, whenever they were', () => {
     // A June 2026 pay period is priced under the unverified 2025 transcription.
     const june = binderFor({
