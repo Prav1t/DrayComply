@@ -1,9 +1,9 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { SPECS, TABLE_KINDS, inspectFile, parseTemplate, serializeTemplate, type FieldSpec, type Inspection, type SourceFile, type TableKind } from '../../../packages/ingest/src/index';
+import { SPECS, TABLE_KINDS, inspectFile, parseTableMapping, parseTemplate, previewTable, serializeTemplate, type FieldSpec, type Inspection, type Preview, type SourceFile, type TableKind } from '../../../packages/ingest/src/index';
 import { DEDUCTION_CATEGORIES } from '../../../packages/rates/deduction-policy';
-import { EMPTY_FIELD, draftToTemplate, emptyDraft, templateToDraft, type Draft, type FieldDraft, type TableDraft } from '../lib/builder';
+import { EMPTY_FIELD, draftTable, draftToTemplate, emptyDraft, templateToDraft, type Draft, type FieldDraft, type TableDraft } from '../lib/builder';
 
 const TABLE_LABELS: Readonly<Record<TableKind, string>> = {
   drivers: 'Drivers and class periods', payPeriods: 'Pay periods', hours: 'Hours worked', trips: 'Trips', payments: 'Payments',
@@ -25,6 +25,7 @@ export function TemplateBuilder({ files, initial, onUse }: Props) {
     const parsed = initial === null ? null : parseTemplate(initial);
     return parsed !== null && parsed.kind === 'ok' ? templateToDraft(parsed.template) : emptyDraft();
   });
+  const [active, setActive] = useState<TableKind>('drivers');
   const template = useMemo(() => draftToTemplate(draft), [draft]);
   const checked = useMemo(() => parseTemplate(template), [template]);
   const problems = [
@@ -57,10 +58,24 @@ export function TemplateBuilder({ files, initial, onUse }: Props) {
       </div>
       <p className="muted">Declare every table: map it to a file, or state that there are no records of that kind. Nothing is filled in for you.</p>
 
-      {TABLE_KINDS.map(table => (
-        <TableEditor key={table} table={table} label={TABLE_LABELS[table]} draft={draft.tables[table]} files={files}
-          onTable={patch => setTable(table, patch)} onField={(name, patch) => setField(table, name, patch)} />
-      ))}
+      <nav className="steps">
+        {TABLE_KINDS.map((table, i) => {
+          const issues = tableIssues(draft, table).length;
+          const state = draft.tables[table].use === 'unset' ? 'todo' : issues === 0 ? 'done' : 'todo';
+          return (
+            <button key={table} type="button" className={`tab ${state}${table === active ? ' active' : ''}`} onClick={() => setActive(table)}>
+              {i + 1}. {TABLE_LABELS[table]}{state === 'done' ? ' (done)' : issues > 0 ? ` (${issues} to settle)` : ''}
+            </button>
+          );
+        })}
+      </nav>
+
+      <TableEditor key={active} table={active} label={TABLE_LABELS[active]} draft={draft.tables[active]} files={files} issues={tableIssues(draft, active)}
+        rawMapping={draftTable(draft, active)} onTable={patch => setTable(active, patch)} onField={(name, patch) => setField(active, name, patch)} />
+      <div className="row">
+        <button type="button" className="secondary" disabled={TABLE_KINDS.indexOf(active) === 0} onClick={() => setActive(TABLE_KINDS[TABLE_KINDS.indexOf(active) - 1] ?? active)}>Back</button>
+        <button type="button" className="secondary" disabled={TABLE_KINDS.indexOf(active) === TABLE_KINDS.length - 1} onClick={() => setActive(TABLE_KINDS[TABLE_KINDS.indexOf(active) + 1] ?? active)}>Next table</button>
+      </div>
 
       {problems.length > 0 ? (
         <div className="banner warn">
@@ -76,16 +91,25 @@ export function TemplateBuilder({ files, initial, onUse }: Props) {
   );
 }
 
+// What is still unsettled for one table, from the same check ingest applies.
+function tableIssues(draft: Draft, table: TableKind): string[] {
+  const errors: string[] = [];
+  parseTableMapping(table, draftTable(draft, table), errors);
+  return errors;
+}
+
 interface TableProps {
   readonly table: TableKind;
   readonly label: string;
   readonly draft: TableDraft;
   readonly files: readonly SourceFile[];
+  readonly issues: readonly string[];
+  readonly rawMapping: unknown;
   readonly onTable: (patch: Partial<TableDraft>) => void;
   readonly onField: (name: string, patch: Partial<FieldDraft>) => void;
 }
 
-function TableEditor({ table, label, draft, files, onTable, onField }: TableProps) {
+function TableEditor({ table, label, draft, files, issues, rawMapping, onTable, onField }: TableProps) {
   const file = files.find(f => f.name === draft.file);
   const seen: Inspection | null = useMemo(
     () => (draft.use === 'mapped' && file !== undefined ? inspectFile(file, draft.sheet === '' ? null : draft.sheet, draft.headerRow, draft.delimiter) : null),
@@ -93,10 +117,16 @@ function TableEditor({ table, label, draft, files, onTable, onField }: TableProp
   );
   const headers = seen !== null && seen.kind === 'ok' ? seen.headers : [];
   const state = draft.use === 'unset' ? 'not declared' : draft.use === 'none' ? 'no records' : draft.file === '' ? 'choose a file' : draft.file;
+  // The preview reads real rows through the mapping, exactly as a run would.
+  const preview: Preview | null = useMemo(() => {
+    if (file === undefined || issues.length > 0) return null;
+    const mapping = parseTableMapping(table, rawMapping, []);
+    return mapping !== null && mapping.kind === 'mapped' ? previewTable(file, table, mapping, 5) : null;
+  }, [file, issues.length, rawMapping, table]);
 
   return (
-    <details className="table-editor" open={draft.use === 'mapped'}>
-      <summary><b>{label}</b> <span className="muted">({state})</span></summary>
+    <div className="table-editor">
+      <p><b>{label}</b> <span className="muted">({state})</span></p>
       <div className="row">
         <label>This table
           <select value={draft.use} onChange={e => { const v = e.target.value; if (v === 'unset' || v === 'none' || v === 'mapped') onTable({ use: v }); }}>
@@ -144,7 +174,29 @@ function TableEditor({ table, label, draft, files, onTable, onField }: TableProp
           </table>
         </div>
       )}
-    </details>
+
+      {draft.use !== 'unset' && issues.length > 0 && (
+        <div className="banner warn"><b>Still to settle for this table:</b><ul className="plain">{issues.slice(0, 8).map(x => <li key={x}>{x}</li>)}{issues.length > 8 && <li>and {issues.length - 8} more</li>}</ul></div>
+      )}
+      {preview !== null && preview.kind === 'error' && <div className="banner bad">{preview.errors.join(' ')}</div>}
+      {preview !== null && preview.kind === 'ok' && (
+        <div>
+          <p className="muted">Preview: how the first rows will be read. {preview.rejectedRows === 0 ? `All ${preview.dataRows} row(s) read.` : `${preview.rejectedRows} of ${preview.dataRows} row(s) would be rejected.`}</p>
+          <div className="scroll">
+            <table>
+              <thead><tr><th>Row</th>{Object.keys(SPECS[table]).map(f => <th key={f}>{f}</th>)}</tr></thead>
+              <tbody>
+                {preview.rows.map(r => r.status === 'read' ? (
+                  <tr key={r.rowNumber}><td className="num">{r.rowNumber}</td>{Object.keys(SPECS[table]).map(f => <td key={f}>{r.cells[f] ?? ''}</td>)}</tr>
+                ) : (
+                  <tr key={r.rowNumber} className="rejected"><td className="num">{r.rowNumber}</td><td colSpan={Object.keys(SPECS[table]).length}>Rejected. {r.problems.join('; ')}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 

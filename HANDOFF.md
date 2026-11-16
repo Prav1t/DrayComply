@@ -33,8 +33,8 @@ Reply "continue" and I resume here.
    `provenance.unverifiedSchedulesUsed` is true. Both are already in the run result.
 6. apps/web: **first version done**, now with a template builder (local, in-browser, no persistence). Follow-ups: saved templates
    and runs, sign-in, hosting (NEEDS_HUMAN 17 to 20). Both follow-ups named here are done (engine v0.4.0; Regulation hourly rates). NEXT unblocked work, in order of value:
-   (1) click-test the app in a browser if a browser tool is available; (2) a guided, table-by-table template builder with a row preview;
-   (3) the Regulation's trip schedules (25 areas, four versions), which only pay off once fuel figures for 2014-2019 are found. Original note kept for reference: Next.js 15. Flow: upload files, pick or build a mapping template, run ingest, show the reject list,
+   (1) click-test the app in a browser (a person, or a browser tool if one is available); (2) saved templates and runs, which need
+   Pravit's choice of storage; (3) the Regulation's trip schedules (25 areas, four versions), which only pay off once fuel figures for 2014-2019 are found. Original note kept for reference: Next.js 15. Flow: upload files, pick or build a mapping template, run ingest, show the reject list,
    run the engine with `OBCCTC_SCHEDULES` and `DEDUCTION_POLICY`, show results, download the binder PDF.
    Persisting templates and runs needs a database, and deploying needs an account: both are human decisions (log, do not do).
    Start with a local-only build that keeps everything in memory and the browser.
@@ -42,7 +42,7 @@ Reply "continue" and I resume here.
 
 ## Nothing is half-edited
 
-Every file on disk is complete and the suite is green: 403 tests, 30 files, strict typecheck clean. Engine is v0.4.0.
+Every file on disk is complete and the suite is green: 408 tests, 30 files, strict typecheck clean. Engine is v0.4.0.
 Everything is pushed to https://github.com/Prav1t/DrayComply (branch main) after each item.
 
 ## How to run

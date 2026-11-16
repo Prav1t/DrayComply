@@ -1,6 +1,6 @@
 // Mapping templates are plain JSON, so they can be saved and reused. This file reads one back and checks it.
 import { SPECS } from './specs';
-import { TABLE_KINDS, type ColumnSource, type FieldFormat, type FieldMapping, type MappingTemplate, type TableMapping } from './types';
+import { TABLE_KINDS, type ColumnSource, type FieldFormat, type FieldMapping, type MappingTemplate, type TableKind, type TableMapping } from './types';
 
 export type TemplateResult =
   | { readonly kind: 'ok'; readonly template: MappingTemplate }
@@ -33,47 +33,55 @@ function format(v: unknown): FieldFormat | null {
   }
 }
 
+// One table's mapping, checked against that table's field list. Problems are appended to errors.
+export function parseTableMapping(table: TableKind, raw: unknown, errors: string[]): TableMapping | null {
+  if (!isObj(raw)) { errors.push(`${table}: not declared. Map it, or declare it as none.`); return null; }
+  if (raw.kind === 'none') return { kind: 'none' };
+  const delimiter = raw.delimiter === ',' || raw.delimiter === ';' || raw.delimiter === '\t' ? raw.delimiter : null;
+  if (raw.kind !== 'mapped' || typeof raw.file !== 'string' || raw.file === '' || !(typeof raw.sheet === 'string' || raw.sheet === null)
+    || typeof raw.headerRow !== 'number' || !Number.isInteger(raw.headerRow) || raw.headerRow < 1 || delimiter === null || !isObj(raw.fields)) {
+    errors.push(`${table}: needs kind, file, sheet, headerRow (1 or more), delimiter and fields`);
+    return null;
+  }
+  const before = errors.length;
+  const spec = SPECS[table];
+  const fields = new Map<string, FieldMapping>();
+  Object.keys(raw.fields).filter(name => !Object.hasOwn(spec, name)).forEach(name => errors.push(`${table}.${name}: not a field of this table`));
+  for (const [name, fieldSpec] of Object.entries(spec)) {
+    const at = `${table}.${name}`;
+    const m = raw.fields[name];
+    if (!isObj(m)) { errors.push(`${at}: not mapped`); continue; }
+    const src = source(m.source);
+    const fmt = format(m.format);
+    const blank = m.blank === 'accept' || m.blank === 'reject' ? m.blank : null;
+    if (src === null || fmt === null || blank === null) { errors.push(`${at}: needs a valid source, format and blank`); continue; }
+    if (fmt.kind !== fieldSpec.type) errors.push(`${at}: format is ${fmt.kind} but the field is ${fieldSpec.type}`);
+    if (fieldSpec.blank === 'never' && (blank === 'accept' || src.kind === 'not_provided')) errors.push(`${at}: this field can never be blank`);
+    if (src.kind === 'not_provided' && blank === 'reject') errors.push(`${at}: not provided, yet blanks are rejected; every row would fail`);
+    if (fmt.kind === 'enum') {
+      Object.entries(fmt.values).filter(([, to]) => !fieldSpec.enumValues.includes(to))
+        .forEach(([from, to]) => errors.push(`${at}: "${from}" maps to "${to}", which is not one of ${fieldSpec.enumValues.join(', ')}`));
+    }
+    fields.set(name, { source: src, format: fmt, blank });
+  }
+  if (errors.length > before) return null;
+  return { kind: 'mapped', file: raw.file, sheet: raw.sheet, headerRow: raw.headerRow, delimiter, fields: Object.fromEntries(fields) };
+}
+
 // Every table and every field must be declared. A template cannot stay silent about anything.
 export function parseTemplate(v: unknown): TemplateResult {
   const errors: string[] = [];
   if (!isObj(v) || typeof v.id !== 'string' || typeof v.name !== 'string' || typeof v.version !== 'number' || !isObj(v.tables)) {
     return { kind: 'invalid', errors: ['template needs id, name, version and tables'] };
   }
-  const tables = new Map<string, TableMapping>();
+  const rawTables = v.tables;
+  const tables = new Map<TableKind, TableMapping>();
   for (const table of TABLE_KINDS) {
-    const raw = v.tables[table];
-    if (!isObj(raw)) { errors.push(`${table}: not declared. Map it, or declare it as none.`); continue; }
-    if (raw.kind === 'none') { tables.set(table, { kind: 'none' }); continue; }
-    const delimiter = raw.delimiter === ',' || raw.delimiter === ';' || raw.delimiter === '\t' ? raw.delimiter : null;
-    if (raw.kind !== 'mapped' || typeof raw.file !== 'string' || !(typeof raw.sheet === 'string' || raw.sheet === null)
-      || typeof raw.headerRow !== 'number' || !Number.isInteger(raw.headerRow) || raw.headerRow < 1 || delimiter === null || !isObj(raw.fields)) {
-      errors.push(`${table}: needs kind, file, sheet, headerRow (1 or more), delimiter and fields`);
-      continue;
-    }
-    const spec = SPECS[table];
-    const fields = new Map<string, FieldMapping>();
-    Object.keys(raw.fields).filter(name => !Object.hasOwn(spec, name)).forEach(name => errors.push(`${table}.${name}: not a field of this table`));
-    for (const [name, fieldSpec] of Object.entries(spec)) {
-      const at = `${table}.${name}`;
-      const m = raw.fields[name];
-      if (!isObj(m)) { errors.push(`${at}: not mapped`); continue; }
-      const src = source(m.source);
-      const fmt = format(m.format);
-      const blank = m.blank === 'accept' || m.blank === 'reject' ? m.blank : null;
-      if (src === null || fmt === null || blank === null) { errors.push(`${at}: needs a valid source, format and blank`); continue; }
-      if (fmt.kind !== fieldSpec.type) errors.push(`${at}: format is ${fmt.kind} but the field is ${fieldSpec.type}`);
-      if (fieldSpec.blank === 'never' && (blank === 'accept' || src.kind === 'not_provided')) errors.push(`${at}: this field can never be blank`);
-      if (src.kind === 'not_provided' && blank === 'reject') errors.push(`${at}: not provided, yet blanks are rejected; every row would fail`);
-      if (fmt.kind === 'enum') {
-        Object.entries(fmt.values).filter(([, to]) => !fieldSpec.enumValues.includes(to))
-          .forEach(([from, to]) => errors.push(`${at}: "${from}" maps to "${to}", which is not one of ${fieldSpec.enumValues.join(', ')}`));
-      }
-      fields.set(name, { source: src, format: fmt, blank });
-    }
-    tables.set(table, { kind: 'mapped', file: raw.file, sheet: raw.sheet, headerRow: raw.headerRow, delimiter, fields: Object.fromEntries(fields) });
+    const mapping = parseTableMapping(table, rawTables[table], errors);
+    if (mapping !== null) tables.set(table, mapping);
   }
   if (errors.length > 0) return { kind: 'invalid', errors };
-  const get = (t: (typeof TABLE_KINDS)[number]): TableMapping => tables.get(t) ?? { kind: 'none' };
+  const get = (t: TableKind): TableMapping => tables.get(t) ?? { kind: 'none' };
   return { kind: 'ok', template: { id: v.id, name: v.name, version: v.version, tables: {
     drivers: get('drivers'), payPeriods: get('payPeriods'), hours: get('hours'), trips: get('trips'), payments: get('payments'),
     deductions: get('deductions'), callouts: get('callouts'), otherLicenseeHours: get('otherLicenseeHours'), fuelPrices: get('fuelPrices'),

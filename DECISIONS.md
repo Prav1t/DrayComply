@@ -156,3 +156,13 @@ Each entry: the choice, the alternative, one line of reasoning. Newest section l
 | 98 | Employee callout under the Regulation is left untranscribed | Encode 4x hourly | Sections 16 and 17 are headed for operators paid per trip and changed on May 14, 2015 ($160 before). Not clear enough to encode |
 | 99 | The Regulation is marked as having no overtime rule | Leave overtime untranscribed | Part 4, Divisions 1 to 3, as read, contain none. Hours are priced at straight time with the scope note (DECISIONS 91) |
 | 100 | The "no schedule for this date" tests and fixture moved from March 2018 to March 2013 | Use the July 2019 hole | Before April 3, 2014 nothing can ever apply, so the test will not need moving again |
+
+## 2026-11-16: guided template builder with a row preview
+
+| # | Choice | Alternative | Why |
+|---|---|---|---|
+| 101 | The builder shows one table at a time, with a numbered tab per table marked done or "n to settle" | One long screen | Sixty fields on one screen was unusable |
+| 102 | The preview runs the real mapper (`previewTable` calls `mapTable`) on the user's own file | A separate preview routine | What the preview shows is exactly what a run will read |
+| 103 | The preview always shows rejected rows with every reason, then fills the rest of five rows with rows that read | First five rows only | The rows worth seeing are the ones that fail |
+| 104 | `parseTableMapping` is exported from ingest and used by the full template parser | A second per-table check in the app | One definition of a valid table mapping |
+| 105 | Build warning fixed: `align-items: end` became `flex-end` | Ignore | It was the only build warning |

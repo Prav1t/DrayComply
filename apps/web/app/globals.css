@@ -8,7 +8,7 @@ footer { margin-top: 40px; color: var(--muted); font-size: 13px; border-top: 1px
 section.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
 section.card > h2 { margin: 0 0 10px; font-size: 16px; }
 .step { display: inline-block; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 12px; text-align: center; line-height: 22px; margin-right: 8px; }
-.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
 label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
 input[type="text"], input[type="date"], select { font: inherit; padding: 7px 9px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--ink); min-width: 180px; }
 button { font: inherit; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
@@ -46,3 +46,9 @@ code { font-size: 12px; word-break: break-all; }
 .map-row { font-size: 13px; margin: 3px 0; }
 .map-row code { background: #eef1f3; padding: 1px 5px; border-radius: 4px; margin-right: 4px; }
 label.check { display: flex; gap: 6px; align-items: center; color: var(--ink); }
+
+nav.steps { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+button.tab { background: #fff; color: var(--ink); border-color: var(--line); padding: 5px 10px; font-size: 13px; }
+button.tab.done { border-color: var(--ok); color: var(--ok); }
+button.tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+tr.rejected td { background: var(--bad-bg); color: var(--bad); }

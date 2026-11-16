@@ -53,19 +53,21 @@ function format(table: TableKind, name: string, f: FieldDraft): unknown {
 
 // The result goes through parseTemplate, which names everything still missing. Unset tables and fields are left out on purpose.
 export function draftToTemplate(d: Draft): unknown {
-  const out = new Map<string, unknown>();
-  for (const table of TABLE_KINDS) {
-    const t = d.tables[table];
-    if (t.use === 'unset') continue;
-    if (t.use === 'none') { out.set(table, { kind: 'none' }); continue; }
-    const fields = Object.entries(t.fields).filter(([, f]) => f.source !== '').map(([name, f]) => [name, {
-      source: f.source === 'column' ? { kind: 'column', header: f.header } : f.source === 'constant' ? { kind: 'constant', value: f.constant } : { kind: 'not_provided' },
-      format: format(table, name, f),
-      blank: f.acceptBlank || f.source === 'not_provided' ? 'accept' : 'reject',
-    }]);
-    out.set(table, { kind: 'mapped', file: t.file, sheet: t.sheet === '' ? null : t.sheet, headerRow: t.headerRow, delimiter: t.delimiter, fields: Object.fromEntries(fields) });
-  }
+  const out = TABLE_KINDS.flatMap(table => { const raw = draftTable(d, table); return raw === undefined ? [] : [[table, raw]]; });
   return { id: d.id.trim(), name: d.name.trim(), version: d.version, tables: Object.fromEntries(out) };
+}
+
+// One table of the draft in template form; undefined while the user has not declared it.
+export function draftTable(d: Draft, table: TableKind): unknown {
+  const t = d.tables[table];
+  if (t.use === 'unset') return undefined;
+  if (t.use === 'none') return { kind: 'none' };
+  const fields = Object.entries(t.fields).filter(([, f]) => f.source !== '').map(([name, f]) => [name, {
+    source: f.source === 'column' ? { kind: 'column', header: f.header } : f.source === 'constant' ? { kind: 'constant', value: f.constant } : { kind: 'not_provided' },
+    format: format(table, name, f),
+    blank: f.acceptBlank || f.source === 'not_provided' ? 'accept' : 'reject',
+  }]);
+  return { kind: 'mapped', file: t.file, sheet: t.sheet === '' ? null : t.sheet, headerRow: t.headerRow, delimiter: t.delimiter, fields: Object.fromEntries(fields) };
 }
 
 function fieldDraft(m: FieldMapping): FieldDraft {

@@ -122,3 +122,11 @@
   return insufficient data, because no fuel surcharge figures exist for them.
 - The only period with no schedule at all is now July 1, 2019 to March 31, 2020.
 - Tests: 403 passing in 30 files. DECISIONS 95 to 100. NEEDS_HUMAN 4 updated.
+
+## Guided template builder with row preview. DONE 2026-11-16
+
+- The builder now works one table at a time, with tabs showing which tables are done and how many things each still needs.
+- Once a table's mapping is complete, a preview shows how its first rows will be read, and every row that would be rejected with the reason.
+- `previewTable` and `parseTableMapping` added to ingest. The one build warning is fixed.
+- `next build` succeeds with no warnings. NOT clicked through in a browser.
+- Tests: 408 passing in 30 files. DECISIONS 101 to 105.

@@ -32,3 +32,13 @@ describe('template builder state', () => {
     expect(emptyDraft().tables.deductions.use).toBe('unset');
   });
 });
+
+describe('one table at a time', () => {
+  it('gives a declared table in template form and nothing for an undeclared one', async () => {
+    const { draftTable } = await import('./builder');
+    const d = templateToDraft(sample());
+    expect(draftTable(d, 'deductions')).toEqual({ kind: 'none' });
+    expect(draftTable(emptyDraft(), 'drivers')).toBeUndefined();
+    expect(draftTable(d, 'hours')).toMatchObject({ kind: 'mapped', file: 'hours.csv', sheet: null, headerRow: 1 });
+  });
+});
