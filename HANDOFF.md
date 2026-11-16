@@ -20,7 +20,8 @@ Reply "continue" and I resume here.
    b. Engine support the old rules need: a quarterly fuel reference; a component state for "no rule in force" (overtime
       before May 2023); possibly a trip-paid employee class (NEEDS_HUMAN 16).
    c. When Pravit uploads the 2023 to 2025 PDFs, read Appendix I and III by eye and fill the null tables.
-   d. The July 2019 and April 2020 orders need a human (NEEDS_HUMAN A2, A3).
+   d. The April 2020 order is now in (`obcctc-2020-04-01.ts`). The July 2019 order still needs a human (NEEDS_HUMAN A2).
+      Known from a bulletin: the PMR began July 1, 2019 at $25 per eligible trip.
 3. Deductions: **draft done**, awaiting a lawyer (NEEDS_HUMAN 14 to 14b). Optional follow-up: open more decisions for deduction
    rulings, and read past licences to see whether the Business Costs list changed over time.
 4. packages/ingest: **done.** Original note kept for reference: It must emit `workPeriod` on every pay line and `otherLicenseeHours` on every driver, map each
@@ -39,7 +40,7 @@ Reply "continue" and I resume here.
 
 ## Nothing is half-edited
 
-Every file on disk is complete and the suite is green: 348 tests, 24 files, strict typecheck clean. Engine is v0.3.0.
+Every file on disk is complete and the suite is green: 359 tests, 25 files, strict typecheck clean. Engine is v0.3.0.
 Everything is pushed to https://github.com/Prav1t/DrayComply (branch main) after each item.
 
 ## How to run

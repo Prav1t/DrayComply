@@ -115,3 +115,12 @@ Each entry: the choice, the alternative, one line of reasoning. Newest section l
 | 77 | The run date defaults to the browser's date and the binder timestamp is taken at the click | Hard-code or omit | The clock is read once, in the app layer, and passed down as an argument; the packages stay pure |
 | 78 | The app imports the sample template and files from `packages/ingest/src/testing/sample.ts` for the "Load the built-in sample" button | Duplicate the sample | One sample, used by tests and the demo |
 | 79 | The app compiles the packages from source via `experimental.externalDir` | Build and publish the packages | No build step for the packages yet; fewer moving parts |
+
+## 2026-11-16: item 2 again (April 2020 order found)
+
+| # | Choice | Alternative | Why |
+|---|---|---|---|
+| 80 | `obcctc-2020-04-01.ts` covers April 1, 2020 to June 30, 2022, from the January 13, 2022 version of the order | Cover only January 13 to June 30, 2022 | The bulletin of that date says its only change was a company name. ASSUMPTION: no earlier amendment changed a rate. If one raised rates, this file overstates what was owed before it, which does not understate |
+| 81 | Its trip tables were transcribed again from the second PDF, not copied from the 2022 file | Reuse the 2022 tables | The two files now check each other cell for cell; a test enforces it |
+| 82 | April 2020 fuel surcharge (6%) added to the supplement from the correcting bulletin, with no reference price | Leave 2020 empty | It is a primary source for one month. Every other 2020 month stays a gap |
+| 83 | Two more tests re-pointed because the oldest schedule moved from July 2022 to April 2020 | Leave red | Same engine behaviour asserted, one day before the new oldest schedule |

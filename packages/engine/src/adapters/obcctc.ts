@@ -4,6 +4,7 @@ import * as R2025 from '../../../rates/obcctc-2025-07-01';
 import * as R2024 from '../../../rates/obcctc-2024-07-01';
 import * as R2023 from '../../../rates/obcctc-2023-07-01';
 import * as R2022 from '../../../rates/obcctc-2022-07-01';
+import * as R2020 from '../../../rates/obcctc-2020-04-01';
 import { FUEL_SUPPLEMENT_META, FUEL_SURCHARGE_PUBLISHED_SUPPLEMENT } from '../../../rates/obcctc-fuel-published-supplement';
 import { DEDUCTION_CATEGORIES, DEDUCTION_POLICY_META, DEDUCTION_SOURCES } from '../../../rates/deduction-policy';
 import type { DeductionPolicy } from '../types/input';
@@ -89,6 +90,7 @@ export const OBCCTC_2026_07_01: RegulatedSchedule = {
 export const OBCCTC_2025_07_01: RegulatedSchedule = fromOrder(R2025);
 export const OBCCTC_2024_07_01: RegulatedSchedule = fromOrder(R2024);
 export const OBCCTC_2023_07_01: RegulatedSchedule = fromOrder(R2023);
+export const OBCCTC_2020_04_01: RegulatedSchedule = fromOrder(R2020);
 
 // The 2022 order has no overtime rule until the separate order of April 28, 2023 takes effect on May 1, 2023.
 const base2022 = fromOrder(R2022);
@@ -100,7 +102,7 @@ export const OBCCTC_2022_07_01_WITH_OVERTIME: RegulatedSchedule = {
 
 // Every schedule in packages/rates, oldest first. Dates outside them resolve to nothing.
 export const OBCCTC_SCHEDULES: ScheduleSet = {
-  schedules: [OBCCTC_2022_07_01, OBCCTC_2022_07_01_WITH_OVERTIME, OBCCTC_2023_07_01, OBCCTC_2024_07_01, OBCCTC_2025_07_01, OBCCTC_2026_07_01],
+  schedules: [OBCCTC_2020_04_01, OBCCTC_2022_07_01, OBCCTC_2022_07_01_WITH_OVERTIME, OBCCTC_2023_07_01, OBCCTC_2024_07_01, OBCCTC_2025_07_01, OBCCTC_2026_07_01],
   fuelPublishedSeriesId: 'obcctc-fuel-surcharge-published',
   fuelPublishedStatus: 'verified',
   fuelPublished: R2026.FUEL_SURCHARGE_PUBLISHED,

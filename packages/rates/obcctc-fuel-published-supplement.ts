@@ -12,6 +12,8 @@ export const FUEL_SUPPLEMENT_META = {
 } as const;
 
 export const FUEL_SURCHARGE_PUBLISHED_SUPPLEMENT: Record<string, { referenceCentsPerLitre: number | null; pct: number }> = {
+  // April 2020 only: OBCCTC bulletin of 2020-04-01 corrected the posted 12% to 6%. No other 2020 month was found.
+  '2020-04': { referenceCentsPerLitre: null, pct: 6 },
   '2021-01': { referenceCentsPerLitre: null, pct: 4 },
   '2021-02': { referenceCentsPerLitre: null, pct: 4 },
   '2021-03': { referenceCentsPerLitre: null, pct: 8 },
@@ -61,5 +63,5 @@ export const FUEL_SURCHARGE_PUBLISHED_SUPPLEMENT: Record<string, { referenceCent
   '2024-11': { referenceCentsPerLitre: null, pct: 30 },
   '2024-12': { referenceCentsPerLitre: null, pct: 32 },
   '2026-11': { referenceCentsPerLitre: 285, pct: 72 },
-  // 2019, 2020 and 2026-12 are not on the page.
+  // 2019, the rest of 2020, and 2026-12 were not found.
 };

@@ -27,6 +27,15 @@
 - Project knowledge: no existing file is replaced. `obcctc-2026-07-01.ts` and its test are untouched.
 
 
+### Item 2, addendum 2026-11-16
+
+- Found and transcribed the April 1, 2020 order (January 13, 2022 version): `obcctc-2020-04-01.ts`, with both trip tables.
+  It matches the July 2022 tables cell for cell, from a separate reading. Coverage now starts April 1, 2020.
+- Added April 2020 (6%) to the fuel supplement. Confirmed from a bulletin that the PMR began July 1, 2019 and that the fuel
+  reference became monthly on January 1, 2020.
+- Still missing: the July 2019 order, 2019 and most 2020 fuel percentages, the 2023 to 2025 trip tables, the pre-2019 Regulation.
+- Tests: 359 passing in 25 files. DECISIONS 80 to 83.
+
 ## Item 3: deductions. DRAFT DONE 2026-11-16 (needs a lawyer)
 
 - Read: Container Trucking Act ss. 23 to 25; the current Regulation (it has no deduction rule); the 2024-2026 CTS Licence

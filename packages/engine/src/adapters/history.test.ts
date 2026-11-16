@@ -37,8 +37,9 @@ describe('2022 order (unverified)', () => {
     expect(gapCodes(deo('2023-04-03', '2023-04-02', '2023-04-15', 10 * rate))).toEqual(['SCHEDULE_COMPONENT_ABSENT']);
     expectClean(deo('2023-05-08', '2023-05-07', '2023-05-20', 10 * rate + rate / 2));   // one hour of premium
   });
-  it('gives insufficient_data the day before it starts: nothing is loaded for June 30, 2022', () => {
-    const p = only([driver({ hourlyEntries: [entry('E1', '2022-06-30', HOUR)], payPeriods: [period({ from: '2022-06-19', to: '2022-06-30', payDate: '2022-07-08' })] })]);
+  it('gives insufficient_data the day before the oldest schedule starts: nothing is loaded for March 31, 2020', () => {
+    // Was June 30, 2022 until the April 2020 order was transcribed. Independent operator: no overtime rule needed.
+    const p = only([driver({ classPeriods: [{ class: 'IO_HOURLY', from: '2019-01-01', to: null }], hourlyEntries: [entry('E1', '2020-03-31', HOUR)], payPeriods: [period({ from: '2020-03-22', to: '2020-03-31', payDate: '2020-04-08' })] })]);
     expect(gapCodes(p)).toEqual(['NO_SCHEDULE_FOR_DATE']);
   });
 });
@@ -53,5 +54,27 @@ describe('2024 order (unverified)', () => {
     const p = only([driver({ classPeriods: IO_TRIP, trips: [offDock('T1', '2024-08-05', 'Q', 'S')], payPeriods: [period(aug2024)] })], OPTIONS);
     expect(gapCodes(p)).toEqual(['SCHEDULE_COMPONENT_ABSENT']);
     expect(p.verdict).toBe('insufficient_data');
+  });
+});
+
+describe('April 2020 order (unverified)', () => {
+  const R = { io: 5_771, floor: 30_000 };   // figures as transcribed; the rates suite guards them
+  it('prices an hourly independent operator in April 2020 with the 6% surcharge from the bulletin: 6% of 5771 = 346.26', () => {
+    const d = driver({
+      classPeriods: [{ class: 'IO_HOURLY', from: '2019-01-01', to: null }], hourlyEntries: [entry('E1', '2020-04-06', HOUR)],
+      payPeriods: [period({ from: '2020-04-05', to: '2020-04-18', payDate: '2020-04-24', lines: [line('L1', 'hourly', R.io), line('L2', 'fuel', 346)] })],
+    });
+    expectClean(only([d]));
+  });
+  it('raises a gap for a month of 2020 with no surcharge found', () => {
+    const d = driver({
+      classPeriods: [{ class: 'IO_HOURLY', from: '2019-01-01', to: null }], hourlyEntries: [entry('E1', '2020-05-04', HOUR)],
+      payPeriods: [period({ from: '2020-05-03', to: '2020-05-16', payDate: '2020-05-22' })],
+    });
+    expect(gapCodes(only([d]))).toEqual(['FUEL_PCT_NOT_PUBLISHED']);
+  });
+  it('raises a gap for company driver hours: the order has no overtime rule', () => {
+    const p = only([driver({ hourlyEntries: [entry('E1', '2021-03-01', HOUR)], payPeriods: [period({ from: '2021-02-28', to: '2021-03-13', payDate: '2021-03-19' })] })]);
+    expect(gapCodes(p)).toEqual(['SCHEDULE_COMPONENT_ABSENT']);
   });
 });

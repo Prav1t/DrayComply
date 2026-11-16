@@ -7,9 +7,9 @@ describe('fuel surcharge supplement', () => {
   it('is marked unverified', () => {
     expect([FUEL_SUPPLEMENT_META.status, FUEL_SUPPLEMENT_META.verifiedBy]).toEqual(['unverified-transcription', null]);
   });
-  it('covers every month of 2021 to 2024, plus November 2026', () => {
+  it('covers every month of 2021 to 2024, plus April 2020 and November 2026', () => {
     const months = [2021, 2022, 2023, 2024].flatMap(y => Array.from({ length: 12 }, (_, m) => `${y}-${String(m + 1).padStart(2, '0')}`));
-    expect(Object.keys(SUPPLEMENT).sort()).toEqual([...months, '2026-11']);
+    expect(Object.keys(SUPPLEMENT).sort()).toEqual(['2020-04', ...months, '2026-11']);
   });
   it('never restates a month the verified file already holds', () => {
     expect(Object.keys(SUPPLEMENT).filter(m => m in FUEL_SURCHARGE_PUBLISHED)).toEqual([]);
