@@ -30,7 +30,8 @@ Reply "continue" and I resume here.
    as Pravit prefers.
 5. packages/report: **done.** Original note kept for reference: It must print `scope` notes and "unverified rates were used" in the header whenever
    `provenance.unverifiedSchedulesUsed` is true. Both are already in the run result.
-6. apps/web: **next.** Next.js 15. Flow: upload files, pick or build a mapping template, run ingest, show the reject list,
+6. apps/web: **first version done** (local, in-browser, no persistence). Follow-ups: a template builder UI, saved templates and
+   runs, sign-in, hosting (NEEDS_HUMAN 17 to 20). Original note kept for reference: Next.js 15. Flow: upload files, pick or build a mapping template, run ingest, show the reject list,
    run the engine with `OBCCTC_SCHEDULES` and `DEDUCTION_POLICY`, show results, download the binder PDF.
    Persisting templates and runs needs a database, and deploying needs an account: both are human decisions (log, do not do).
    Start with a local-only build that keeps everything in memory and the browser.
@@ -38,7 +39,7 @@ Reply "continue" and I resume here.
 
 ## Nothing is half-edited
 
-Every file on disk is complete and the suite is green: 342 tests, 23 files, strict typecheck clean. Engine is v0.3.0.
+Every file on disk is complete and the suite is green: 348 tests, 24 files, strict typecheck clean. Engine is v0.3.0.
 Everything is pushed to https://github.com/Prav1t/DrayComply (branch main) after each item.
 
 ## How to run

@@ -72,4 +72,13 @@
 - Project knowledge: nothing replaced. Pushed to GitHub.
 - DECISIONS 64 to 72. No new NEEDS_HUMAN entries.
 
-## Item 6: apps/web. NOT STARTED
+## Item 6: apps/web. FIRST VERSION DONE 2026-11-16
+
+- A one-page Next.js 15 app: choose files, load a template, set licensee and run date, run, read results, download the binder PDF.
+- Everything runs in the browser. No server code, no database, no accounts.
+- Shows the unverified-rates notice, withheld drivers, both comparisons, findings, gaps, rejected rows, scope and file hashes.
+- `next build` succeeds and the built page serves. The click-through itself is NOT tested in a browser (NEEDS_HUMAN 19).
+- Tests: 348 passing in 24 files (6 for the pipeline).
+- New: everything under `apps/web`. Changed: root `package.json` (next, react), `.gitignore`.
+- Project knowledge: nothing replaced. Pushed to GitHub.
+- DECISIONS 73 to 79. NEEDS_HUMAN 17 to 20.

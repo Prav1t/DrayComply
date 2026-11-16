@@ -69,4 +69,12 @@ Things only a person can get, check or decide. Nothing here was filled in from a
 16. **Driver class not modelled:** before May 14, 2015 the Regulation set $40 per trip for directly employed operators paid
     by the trip (former ss. 10 and 11). The engine has no trip-paid employee class.
 
+17. **"The spec's stack" for apps/web is not in project knowledge.** I built Next.js 15 with React 19 and plain CSS. If the spec
+    names Tailwind, a component library, an auth provider or a database, tell me and I will change it.
+18. **Decisions only Pravit can make for the app:** where it is hosted, whether runs and templates are stored (and in what database),
+    and whether users sign in. Each needs an account or spends money, so I have not done any of them.
+19. **The app's click-through has not been tested in a real browser.** It builds, the page renders, and the pipeline behind the
+    button is unit-tested. Run `npx next dev apps/web`, click "Load the built-in sample", then "Run calculation".
+20. **A template builder UI does not exist.** Templates are JSON written by hand from `packages/ingest/src/specs.ts`.
+
 ## D. Nothing in this session spent money, created an account, contacted anyone, published or deployed.
