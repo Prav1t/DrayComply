@@ -23,18 +23,19 @@ Reply "continue" and I resume here.
    d. The July 2019 and April 2020 orders need a human (NEEDS_HUMAN A2, A3).
 3. Deductions: **draft done**, awaiting a lawyer (NEEDS_HUMAN 14 to 14b). Optional follow-up: open more decisions for deduction
    rulings, and read past licences to see whether the Business Costs list changed over time.
-4. packages/ingest: **next.** It must emit `workPeriod` on every pay line and `otherLicenseeHours` on every driver, map each
+4. packages/ingest: **done.** Original note kept for reference: It must emit `workPeriod` on every pay line and `otherLicenseeHours` on every driver, map each
    deduction column to a category in `deduction-policy.ts` (unmapped stays unmapped, so the engine raises a gap), and is where
    decimal.js parsing lives. XLSX parsing needs a dependency: choose one, record it in DECISIONS.md.
    Item 2 also has unblocked work left (2a, and the bulletin leads in NEEDS_HUMAN 14c) to pick up when ingest is done or first,
    as Pravit prefers.
-5. packages/report: not started. It must print `scope` notes and "unverified rates were used" in the header whenever
+5. packages/report: **next.** It must print `scope` notes and "unverified rates were used" in the header whenever
    `provenance.unverifiedSchedulesUsed` is true. Both are already in the run result.
 6. apps/web: not started.
 
 ## Nothing is half-edited
 
-Every file on disk is complete and the suite is green: 258 tests, 19 files, strict typecheck clean. Engine is v0.3.0.
+Every file on disk is complete and the suite is green: 326 tests, 22 files, strict typecheck clean. Engine is v0.3.0.
+Everything is pushed to https://github.com/Prav1t/DrayComply (branch main) after each item.
 
 ## How to run
 

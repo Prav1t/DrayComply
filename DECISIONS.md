@@ -68,3 +68,24 @@ Each entry: the choice, the alternative, one line of reasoning. Newest section l
 | 45 | `DeductionPolicy` gains `citations`; a disallowed-deduction finding states its basis "as an interpretation" | Keep citations out of results | An auditor needs to see what the ruling rests on. Breaking input change; engine is v0.3.0 |
 | 46 | The policy is exported from `adapters/obcctc.ts` | A second adapter file | Keeps the purity rule "one file imports packages/rates" intact without touching its test |
 | 47 | One policy for all dates | Effective-dated policies | Sources read are the 2024-2026 licence, a 2016 bulletin and a 2018 decision; earlier licences were not read. Logged in NEEDS_HUMAN |
+
+## 2026-11-16: item 4 (packages/ingest)
+
+| # | Choice | Alternative | Why |
+|---|---|---|---|
+| 48 | XLSX is read with `fflate` (unzip) and a small handwritten XML reader | SheetJS `xlsx`, or `exceljs` | The file stores numbers as decimal text; reading that text keeps money out of floats entirely. SheetJS hands back floats and its npm build carries open advisories |
+| 49 | No cell styles are read, so a date cell arrives as its serial number and the template names `excel_serial` | Detect date formats from styles | The template stating the format is explicit; detection is inference |
+| 50 | Amounts are trimmed to 9 decimal places before the two-decimal check | Strict two decimals | Removes float storage noise (139.10000000000002) without ever hiding a real third decimal (139.105 is refused) |
+| 51 | Negative and bracketed amounts are rejected | Treat as reversals | A reversal changes what a line means; the licensee must restate it |
+| 52 | Hours that are not a whole number of minutes are rejected | Round to the minute | Rounding is an inference; 8.33 h is not 8 h 20 min |
+| 53 | Every table and every field must be declared in the template; an absent table is `none`, stated by the licensee | Optional tables | Silence about a table would be read as "no records", which is an assumption |
+| 54 | A blank cell is accepted only if the field has a blank meaning AND the template opts in per field | Field-level rule only | The licensee decides whether blank means "not reported" in their export |
+| 55 | A driver with any rejected row is withheld from the engine input | Run the driver on the rows that parsed | A verdict on partial records misleads in either direction |
+| 56 | A rejected row tied to no known driver is counted as `unattributedRejects` and stated in the result | Ignore | It could belong to any driver; the report must say so |
+| 57 | Missing record ids are generated as `table:file#row`; a blank `seq` uses the row number | Reject rows without ids | An identifier is not a value; generation is deterministic and traceable to the file |
+| 58 | A duplicated or missing column header stops the whole ingest (`file_invalid`) | Pick the first match | Picking is guessing |
+| 59 | Unmapped deduction labels pass through unchanged | Reject the row | The engine then raises `DEDUCTION_CATEGORY_UNKNOWN`, which is the designed gap |
+| 60 | Rows in callouts, otherLicenseeHours and fuelPrices are rejected unless the driver row says the table applies | Drop them | Never drop data quietly |
+| 61 | SHA-256 is handwritten and synchronous; each file and the template are hashed into `provenance.sources` | Platform crypto | Keeps the library pure and usable in a browser or server alike; checked against published vectors |
+| 62 | One file (and sheet) per table | Several files per table | Simpler; concatenating exports is the caller's job for now |
+| 63 | `tripId` on a non-trip payment is ignored | Reject | Harmless; exports often repeat the column |

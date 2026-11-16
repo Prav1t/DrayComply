@@ -45,4 +45,17 @@
 - Project knowledge: `draycomply-repo.zip` is replaced by the new zip. Nothing else is replaced.
 - DECISIONS 38 to 47. NEEDS_HUMAN 14, 14a, 14b, 14c.
 
-## Items 4 to 6: NOT STARTED
+## Item 4: packages/ingest. DONE 2026-11-16
+
+- A pure library: bytes and a template in; engine input, a reject list (file, row, field, raw value, reason) and a hashed
+  file manifest out. Reads CSV and XLSX. Depends on `decimal.js` and `fflate` only.
+- Nine tables, each field with a declared blank meaning (`src/specs.ts`). Templates are plain JSON, validated on load.
+- Money never touches a float: XLSX numbers are read as the decimal text the file stores.
+- Sample template and exports in `src/testing/sample.ts`; a real openpyxl workbook in `samples/payments.xlsx`.
+- Eight rules broken on purpose; a test failed each time.
+- Tests: 326 passing in 22 files (68 in ingest).
+- New: everything under `packages/ingest`. Changed: root `package.json` (two dependencies), `.gitignore`.
+- Project knowledge: nothing replaced. Work is now pushed to GitHub (Prav1t/DrayComply, branch main).
+- DECISIONS 48 to 63. No new NEEDS_HUMAN entries.
+
+## Items 5 and 6: NOT STARTED
