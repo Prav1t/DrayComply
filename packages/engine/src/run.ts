@@ -78,6 +78,9 @@ function evaluateDriver(driver: DriverInput, schedules: ScheduleSet, options: Ru
   if (driver.otherLicenseeHours.kind === 'not_reported' && driver.hourlyEntries.length > 0) {
     scope.push({ code: SCOPE.OTHER_LICENSEE_HOURS_NOT_REPORTED, sentence: 'Hours worked for other licensees during the run were not supplied. The step up at the hourly tier threshold may be applied late, and amounts owed may be understated.' });
   }
+  if (hourly.pricedWithNoOvertimeRule) {
+    scope.push({ code: SCOPE.NO_OVERTIME_RULE_IN_FORCE, sentence: 'Some hours fall on dates when the Commissioner\'s rate order contained no overtime rule. They are priced at the hourly rate only. Overtime owed under employment standards law is not evaluated, so amounts owed may be understated.' });
+  }
   if (driver.callouts.kind === 'not_flagged') {
     scope.push({ code: SCOPE.CALLOUTS_NOT_FLAGGED, sentence: 'Callout days were not flagged in the input. The callout minimum was not evaluated, and amounts owed may be understated.' });
   }

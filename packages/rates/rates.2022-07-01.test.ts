@@ -93,7 +93,7 @@ describe('hourly rates and callout', () => {
 
 describe('overtime', () => {
   it('has no rule in the order itself', () => {
-    expect(OVERTIME).toBeNull();
+    expect(OVERTIME).toBe('no_rule_in_order');   // read and found to have none; null would mean not transcribed
   });
   it('takes the separate overtime order from May 1, 2023, on the same terms as later orders', () => {
     expect(OVERTIME_FROM_2023_05_01.effectiveFrom).toBe('2023-05-01');

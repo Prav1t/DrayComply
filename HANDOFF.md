@@ -41,7 +41,7 @@ Reply "continue" and I resume here.
 
 ## Nothing is half-edited
 
-Every file on disk is complete and the suite is green: 367 tests, 27 files, strict typecheck clean. Engine is v0.3.0.
+Every file on disk is complete and the suite is green: 370 tests, 27 files, strict typecheck clean. Engine is v0.4.0.
 Everything is pushed to https://github.com/Prav1t/DrayComply (branch main) after each item.
 
 ## How to run

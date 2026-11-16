@@ -4,7 +4,7 @@ import type { ScheduleSet } from '../types/schedule';
 import type { GapDraft, HourlyItem } from '../types/internal';
 import { GAPS } from '../rules/catalogue';
 import { classAt } from '../classify/class-at';
-import { resolveComponent } from '../schedule/resolve';
+import { resolveComponent, resolveOptionalComponent } from '../schedule/resolve';
 import { dayNumber, weekStartDay } from '../math/dates';
 import { MINUTES_PER_HOUR } from '../math/units';
 import { ZERO, add, divInt, fromInt, mulRatio, sub, type Frac } from '../math/ratio';
@@ -14,6 +14,7 @@ import { INITIAL_OVERTIME_STATE, advance, enterDay, minutesToOvertimeBoundary, o
 export interface HourlyOutcome {
   readonly items: readonly HourlyItem[];
   readonly gaps: readonly GapDraft[];
+  readonly pricedWithNoOvertimeRule: boolean;   // some employee hours fell where the order has no overtime rule
 }
 
 const byDateThenSeq = (a: HourlyEntry, b: HourlyEntry): number =>
@@ -33,6 +34,7 @@ export function computeHourly(driver: DriverInput, schedules: ScheduleSet): Hour
     ? [...driver.otherLicenseeHours.entries].sort((a, b) => (a.workDate < b.workDate ? -1 : a.workDate > b.workDate ? 1 : 0))
     : [];
   let nextOther = 0;
+  let pricedWithNoOvertimeRule = false;
 
   for (const e of entries) {
     // Hours for other licensees move the tier. Same-day hours count first, so the step up is never late.
@@ -72,9 +74,11 @@ export function computeHourly(driver: DriverInput, schedules: ScheduleSet): Hour
     const hourly = resolveComponent(schedules, e.workDate, 'hourly', s => s.hourly);
     if (hourly.kind === 'gap') { unpriced(); gap(hourly.code, hourly.detail); continue; }
 
-    const overtime = overtimeEligible ? resolveComponent(schedules, e.workDate, 'overtime', s => s.overtime) : null;
+    const overtime = overtimeEligible ? resolveOptionalComponent(schedules, e.workDate, 'overtime', s => s.overtime) : null;
     if (overtime !== null && overtime.kind === 'gap') { unpriced(); gap(overtime.code, overtime.detail); continue; }
-    const rules = overtime === null ? null : overtime.value;
+    // No overtime rule in the order: straight time only. The day cannot count toward a later rule's weekly total.
+    if (overtime !== null && overtime.kind === 'not_in_force') { pricedWithNoOvertimeRule = true; unpriced(); }
+    const rules = overtime !== null && overtime.kind === 'resolved' ? overtime.value : null;
 
     if (rules !== null) {
       const weekKey = weekStartDay(e.workDate, rules.weekStartsOn);
@@ -136,7 +140,7 @@ export function computeHourly(driver: DriverInput, schedules: ScheduleSet): Hour
       weeklyPremium,
     });
   }
-  return { items, gaps };
+  return { items, gaps, pricedWithNoOvertimeRule };
 }
 
 // Minutes performed before a date; null when the opening balance is missing.

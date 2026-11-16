@@ -61,7 +61,8 @@ export const HOURLY = {
 } as const;
 
 // This order contains no overtime rule. The separate order of April 28, 2023 adds one from May 1, 2023.
-export const OVERTIME = null;
+// The marker says the order was read and has none. null would mean nobody has transcribed it.
+export const OVERTIME = 'no_rule_in_order' as const;
 export const OVERTIME_FROM_2023_05_01 = {
   effectiveFrom: '2023-05-01',
   orderedOn: '2023-04-28',

@@ -3,13 +3,14 @@ import {
   OBCCTC_2022_07_01, OBCCTC_2022_07_01_WITH_OVERTIME, OBCCTC_2023_07_01, OBCCTC_2024_07_01, OBCCTC_2025_07_01, OBCCTC_2026_07_01, OBCCTC_SCHEDULES,
 } from './obcctc';
 import { addDays } from '../math/dates';
+import type { Component } from '../types/schedule';
 import {
   CALLOUT, FUEL_SURCHARGE_PUBLISHED, HOURLY, HOURLY_2025_07_01, HOURLY_TIER_THRESHOLD_HOURS, MULTI_CONTAINER,
   OFF_DOCK, ON_DOCK, OVERTIME, POSITIONING_MOVEMENT,
 } from '../../../rates/obcctc-2026-07-01';
 
-const value = <T>(c: { kind: 'present'; value: T } | { kind: 'absent' }): T => {
-  if (c.kind === 'absent') throw new Error('component absent');
+const value = <T>(c: Component<T>): T => {
+  if (c.kind !== 'present') throw new Error(`component is ${c.kind}`);
   return c.value;
 };
 
@@ -58,7 +59,7 @@ describe('OBCCTC adapter', () => {
     expect(s[0]?.effectiveFrom).toBe('2020-04-01');   // was 2022-07-01 until the April 2020 order was transcribed
   });
   it('gives the 2022 order no overtime rule until the overtime order takes effect on May 1, 2023', () => {
-    expect(OBCCTC_2022_07_01.overtime.kind).toBe('absent');
+    expect(OBCCTC_2022_07_01.overtime.kind).toBe('not_in_force');   // known to have none, as opposed to not transcribed
     expect([OBCCTC_2022_07_01.effectiveTo, OBCCTC_2022_07_01_WITH_OVERTIME.effectiveFrom]).toEqual(['2023-04-30', '2023-05-01']);
     expect(value(OBCCTC_2022_07_01_WITH_OVERTIME.overtime).dailyThresholdHours).toBe(9);
     expect(value(OBCCTC_2022_07_01_WITH_OVERTIME.offDock).table).toBe(value(OBCCTC_2022_07_01.offDock).table);

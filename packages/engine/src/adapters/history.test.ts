@@ -2,7 +2,8 @@
 import { describe, it, expect } from 'vitest';
 import * as R2022 from '../../../rates/obcctc-2022-07-01';
 import * as R2024 from '../../../rates/obcctc-2024-07-01';
-import { IO_TRIP, OPTIONS, driver, entry, expectClean, gapCodes, line, offDock, only, period, run, tripLine } from '../testing/builders';
+import { OBCCTC_SCHEDULES } from './obcctc';
+import { IO_TRIP, OPTIONS, cents, driver, entry, expectClean, gapCodes, line, offDock, only, period, run, tripLine } from '../testing/builders';
 
 const HOUR = 60;
 const aug2022 = { from: '2022-08-07', to: '2022-08-20', payDate: '2022-08-26' };
@@ -34,7 +35,9 @@ describe('2022 order (unverified)', () => {
       payPeriods: [period({ from, to, payDate: '2023-06-30', lines: [line('L1', 'hourly', paid)] })],
     })]);
     const rate = R2022.HOURLY.DEO.underThreshold;
-    expect(gapCodes(deo('2023-04-03', '2023-04-02', '2023-04-15', 10 * rate))).toEqual(['SCHEDULE_COMPONENT_ABSENT']);
+    // Changed 2026-11-16 (DECISIONS 90): April 2023 used to be a gap. The order is known to have no overtime rule, so ten hours are owed at straight time.
+    expectClean(deo('2023-04-03', '2023-04-02', '2023-04-15', 10 * rate));
+    expect(cents(deo('2023-04-03', '2023-04-02', '2023-04-15', 10 * rate - 1).aggregate)).toBe(-1);
     expectClean(deo('2023-05-08', '2023-05-07', '2023-05-20', 10 * rate + rate / 2));   // one hour of premium
   });
   it('gives insufficient_data the day before the oldest schedule starts: nothing is loaded for March 31, 2020', () => {
@@ -73,8 +76,28 @@ describe('April 2020 order (unverified)', () => {
     });
     expect(gapCodes(only([d]))).toEqual(['FUEL_PCT_NOT_PUBLISHED']);
   });
-  it('raises a gap for company driver hours: the order has no overtime rule', () => {
-    const p = only([driver({ hourlyEntries: [entry('E1', '2021-03-01', HOUR)], payPeriods: [period({ from: '2021-02-28', to: '2021-03-13', payDate: '2021-03-19' })] })]);
+  it('prices company driver hours at straight time and says in the scope that no overtime rule was in force', () => {
+    // Changed 2026-11-16 (DECISIONS 90): this used to be a gap.
+    const d = driver({ hourlyEntries: [entry('E1', '2021-03-01', 12 * HOUR)], payPeriods: [period({ from: '2021-02-28', to: '2021-03-13', payDate: '2021-03-19', lines: [line('L1', 'hourly', 12 * 2_630)] })] });
+    const r = run([d]);
+    expect(r.drivers[0]?.verdict).toBe('no_shortfall_detected');
+    expect(r.drivers[0]?.scope.map(n => n.code)).toEqual(['NO_OVERTIME_RULE_IN_FORCE']);
+    expect(r.scope.find(n => n.code === 'NO_OVERTIME_RULE_IN_FORCE')?.sentence).toMatch(/employment standards law is not evaluated.*understated/);
+  });
+  it('adds no such scope note once an overtime rule exists', () => {
+    const d = driver({ hourlyEntries: [entry('E1', '2026-07-06', HOUR)], payPeriods: [period({ lines: [line('L1', 'hourly', 3_456)] })] });
+    expect(run([d]).drivers[0]?.scope).toEqual([]);
+  });
+  it('raises a gap in the one week that straddles May 1, 2023: Sunday April 30 has no rule, so the weekly count cannot start', () => {
+    const d = driver({
+      hourlyEntries: [entry('SUN', '2023-04-30', 8 * HOUR), entry('MON', '2023-05-01', 8 * HOUR)],
+      payPeriods: [period({ from: '2023-04-30', to: '2023-05-13', payDate: '2023-05-19' })],
+    });
+    expect(gapCodes(only([d]))).toEqual(['OVERTIME_WEEK_INCOMPLETE']);
+  });
+  it('still treats an untranscribed overtime component as a gap, never as "no rule"', () => {
+    const untranscribed = { ...OBCCTC_SCHEDULES, schedules: OBCCTC_SCHEDULES.schedules.map(s => (s.id === 'obcctc-2020-04-01' ? { ...s, overtime: { kind: 'absent' as const } } : s)) };
+    const p = only([driver({ hourlyEntries: [entry('E1', '2021-03-01', HOUR)], payPeriods: [period({ from: '2021-02-28', to: '2021-03-13', payDate: '2021-03-19' })] })], OPTIONS, untranscribed);
     expect(gapCodes(p)).toEqual(['SCHEDULE_COMPONENT_ABSENT']);
   });
 });

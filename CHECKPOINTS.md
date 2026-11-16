@@ -92,6 +92,14 @@
 - Project knowledge: nothing replaced. Pushed to GitHub.
 - DECISIONS 73 to 79. NEEDS_HUMAN 17 to 20.
 
+## Engine v0.4.0: no overtime rule in force. DONE 2026-11-16
+
+- Company driver and IEO hours from April 2020 to April 2023 are now priced (straight time) instead of returning insufficient data.
+- Every such result carries a scope note that employment standards overtime is not evaluated and amounts may be understated.
+- An untranscribed overtime component is still a gap. Three aspects broken on purpose; a test failed each time.
+- Two tests changed their expectation because the behaviour was changed on purpose (history.test.ts; DECISIONS 91).
+- Tests: 370 passing in 27 files. DECISIONS 90 to 94. NEEDS_HUMAN 13 updated.
+
 ## Template builder. DONE 2026-11-16
 
 - In the app, step 2 now has "Build a template from these files" / "Edit this template".

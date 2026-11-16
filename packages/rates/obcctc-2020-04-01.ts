@@ -31,7 +31,8 @@ export const HOURLY = {
 } as const;
 
 // This order contains no overtime rule.
-export const OVERTIME = null;
+// The marker says the order was read and has none. null would mean nobody has transcribed it.
+export const OVERTIME = 'no_rule_in_order' as const;
 
 export const CALLOUT = {
   minContinuousHours: 4,

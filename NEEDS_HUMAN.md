@@ -46,8 +46,9 @@ Things only a person can get, check or decide. Nothing here was filled in from a
 ## C. Legal interpretations for a lawyer
 
 12. **A disallowed deduction is treated as a contravention in itself** and is never downgraded to informational (DECISIONS 16).
-13. **Overtime before May 1, 2023.** The Commissioner's orders contain no overtime rule before then. Whether employment
-    standards overtime applied to container truck drivers, and at what thresholds, is not encoded (DECISIONS 32).
+13. **Overtime before May 1, 2023.** The Commissioner's orders contain no overtime rule before then. The engine now prices those
+    hours at the hourly rate only and says so in the scope statement (DECISIONS 91). A lawyer should confirm whether employment
+    standards overtime applied to container truck drivers in those years; if it did, the figures understate what was owed.
 14. **The deduction policy is a first draft by an AI and needs a lawyer.** `packages/rates/deduction-policy.ts`. Review points:
     - Section 24 of the Act bars any set-off, commission, rate deduction or rebate "from a trucker", with no stated exception.
       The licence nevertheless permits statutory deductions and undefined "Payroll Deductions". How those fit together is the core question.

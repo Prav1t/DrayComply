@@ -1,8 +1,10 @@
 import type { Cents, HourlyClass, IsoDate, Ratio, YearMonth } from './primitives';
 import type { Weekday } from '../math/dates';
 
+// absent: nobody has transcribed it, so it is unknown. not_in_force: the order is known to contain no such rule.
 export type Component<T> =
   | { readonly kind: 'present'; readonly value: T }
+  | { readonly kind: 'not_in_force' }
   | { readonly kind: 'absent' };
 
 export interface TierRates { readonly underThreshold: Cents; readonly atOrOverThreshold: Cents }

@@ -135,3 +135,13 @@ Each entry: the choice, the alternative, one line of reasoning. Newest section l
 | 87 | The builder shows the distinct values found in a column so each can be mapped by hand | Free-text mapping only | Reporting what is in the file is not inference; deciding what it means stays with the user |
 | 88 | `inspectFile` lives in `packages/ingest`; the form state and its conversion live in `apps/web/lib/builder.ts`, both tested | All in the component | The component cannot be tested here |
 | 89 | Validation is the template parser's, shown live; the builder adds no rules of its own | A second validator in the UI | One source of truth for what a valid template is |
+
+## 2026-11-16: "no overtime rule in force" (engine v0.4.0)
+
+| # | Choice | Alternative | Why |
+|---|---|---|---|
+| 90 | A schedule component has three states: `present`, `not_in_force` (the order was read and has no such rule) and `absent` (nobody has transcribed it) | Keep two states and a gap | They are different facts. Supersedes DECISIONS 32 |
+| 91 | Employee hours under an order with no overtime rule are owed at the hourly rate only, with a driver and run scope note saying employment standards overtime is not evaluated and amounts may be understated | Keep them a gap; or encode employment standards overtime | The engine measures the Commissioner's orders, and under those orders nothing more was owed. INTERPRETATION, for a lawyer: ALTERNATIVE LOGGED is that employment standards overtime applied and should be added, which this figure would understate. The scope note says so in every report |
+| 92 | A day with no overtime rule does not count toward a later rule's weekly total; later employee entries in that same week are a gap | Count it | Only the week of April 30, 2023 is affected. Whether Sunday April 30 hours count toward the first week's 45 is not stated anywhere |
+| 93 | Only overtime uses `not_in_force` today; every other caller still gets a gap for it | Apply it to all components | Safe default. The pre-2019 Regulation will want it for the positioning movement rate, which began July 1, 2019 |
+| 94 | In the rates files the marker is `OVERTIME = 'no_rule_in_order'`; `null` still means not transcribed | Reuse null | A reader of the file must be able to tell the two apart |

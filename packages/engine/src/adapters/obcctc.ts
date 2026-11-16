@@ -30,8 +30,9 @@ interface OvertimeSource {
 }
 
 // The engine implements the first-nine-hours weekly rule only; anything else is refused.
-function overtime(o: OvertimeSource | null): Component<OvertimeRules> {
+function overtime(o: OvertimeSource | 'no_rule_in_order' | null): Component<OvertimeRules> {
   if (o === null) return { kind: 'absent' };
+  if (o === 'no_rule_in_order') return { kind: 'not_in_force' };
   if (!o.onlyFirstNineHoursCountWeekly) throw new RangeError('unsupported weekly overtime counting rule');
   return { kind: 'present', value: {
     multiplier: exact(o.multiplier, 'OVERTIME.multiplier'), dailyThresholdHours: o.dailyThresholdHours,
@@ -44,7 +45,7 @@ interface OrderFile {
   readonly SCHEDULE_META: { readonly id: string; readonly effectiveFrom: string; readonly effectiveTo: string | null; readonly status: ScheduleStatus; readonly verifiedBy: string | null };
   readonly HOURLY_TIER_THRESHOLD_HOURS: number;
   readonly HOURLY: { readonly DEO: TierRates; readonly IEO: TierRates; readonly IO_HOURLY: TierRates };
-  readonly OVERTIME: OvertimeSource | null;
+  readonly OVERTIME: OvertimeSource | 'no_rule_in_order' | null;
   readonly CALLOUT: { readonly deoIeoMultiplierOfHourly: number; readonly ioFloorCents: number };
   readonly ON_DOCK: RateTable | null;
   readonly OFF_DOCK: RateTable | null;

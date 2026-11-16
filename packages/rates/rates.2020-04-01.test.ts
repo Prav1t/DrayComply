@@ -48,7 +48,7 @@ describe('hourly rates and callout', () => {
 
 describe('other rules', () => {
   it('has no overtime rule, and the same PMR, multi-container and fuel rules as July 2022', () => {
-    expect(OVERTIME).toBeNull();
+    expect(OVERTIME).toBe('no_rule_in_order');
     expect(POSITIONING_MOVEMENT).toEqual(NEXT.POSITIONING_MOVEMENT);
     expect(MULTI_CONTAINER).toEqual(NEXT.MULTI_CONTAINER);
     expect(FUEL_SURCHARGE).toEqual(NEXT.FUEL_SURCHARGE);

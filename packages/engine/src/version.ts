@@ -1,2 +1,2 @@
 // Bump on any change that can alter a result.
-export const ENGINE_VERSION = '0.3.0';
+export const ENGINE_VERSION = '0.4.0';
