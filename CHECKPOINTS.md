@@ -112,3 +112,13 @@
 - New: `packages/ingest/src/inspect.ts` (+ test), `apps/web/lib/builder.ts` (+ test), `apps/web/components/TemplateBuilder.tsx`.
   Changed: `packages/ingest/src/index.ts`, `apps/web/components/Workbench.tsx`, `apps/web/app/globals.css`.
 - DECISIONS 84 to 89.
+
+## Pre-repeal Regulation, hourly rates. DONE 2026-11-16
+
+- Three unverified schedules cover April 3, 2014 to June 30, 2019 for hourly rates and the independent operator callout floor.
+- Company driver and IEO hours for those years are now computable (straight time, with the no-overtime scope note).
+- Cross-checks: the June 2019 company driver rates equal the April 2020 order's; I swapped digits in two files and tests caught both.
+- Not transcribed: the 25-area trip schedules, employee callout, fuel surcharge. Independent operators in those years still
+  return insufficient data, because no fuel surcharge figures exist for them.
+- The only period with no schedule at all is now July 1, 2019 to March 31, 2020.
+- Tests: 403 passing in 30 files. DECISIONS 95 to 100. NEEDS_HUMAN 4 updated.

@@ -145,3 +145,14 @@ Each entry: the choice, the alternative, one line of reasoning. Newest section l
 | 92 | A day with no overtime rule does not count toward a later rule's weekly total; later employee entries in that same week are a gap | Count it | Only the week of April 30, 2023 is affected. Whether Sunday April 30 hours count toward the first week's 45 is not stated anywhere |
 | 93 | Only overtime uses `not_in_force` today; every other caller still gets a gap for it | Apply it to all components | Safe default. The pre-2019 Regulation will want it for the positioning movement rate, which began July 1, 2019 |
 | 94 | In the rates files the marker is `OVERTIME = 'no_rule_in_order'`; `null` still means not transcribed | Reuse null | A reader of the file must be able to tell the two apart |
+
+## 2026-11-16: pre-repeal Regulation, hourly rates
+
+| # | Choice | Alternative | Why |
+|---|---|---|---|
+| 95 | Three schedule files for the Regulation, split where the hourly rates change: `ctr-2014-04-03`, `ctr-2018-06-01`, `ctr-2019-06-01` | One file with dated rows | One file per schedule, as asked; resolution stays one schedule per date |
+| 96 | Transcribed hourly rates and the independent operator callout floor only. Trip schedules, the employee callout rule and the fuel surcharge are null (a gap) | Transcribe the 25-area trip schedules now | Hourly rates make company driver history computable today. Trips would still be blocked: no fuel surcharge figures exist for those years, so an independent operator's result is insufficient data either way |
+| 97 | The 2014 file applies $25.13 and $26.28 back to April 3, 2014 | Start it on May 14, 2015 | ASSUMPTION: the earlier wording of section 13 is not printed in the table of past versions, but the last text in force states these amounts for all services before June 1, 2018, and section 19 reaches back to April 3, 2014. The independent operator amounts are printed for the earlier version and are the same |
+| 98 | Employee callout under the Regulation is left untranscribed | Encode 4x hourly | Sections 16 and 17 are headed for operators paid per trip and changed on May 14, 2015 ($160 before). Not clear enough to encode |
+| 99 | The Regulation is marked as having no overtime rule | Leave overtime untranscribed | Part 4, Divisions 1 to 3, as read, contain none. Hours are priced at straight time with the scope note (DECISIONS 91) |
+| 100 | The "no schedule for this date" tests and fixture moved from March 2018 to March 2013 | Use the July 2019 hole | Before April 3, 2014 nothing can ever apply, so the test will not need moving again |

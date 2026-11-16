@@ -5,6 +5,9 @@ import * as R2024 from '../../../rates/obcctc-2024-07-01';
 import * as R2023 from '../../../rates/obcctc-2023-07-01';
 import * as R2022 from '../../../rates/obcctc-2022-07-01';
 import * as R2020 from '../../../rates/obcctc-2020-04-01';
+import * as C2014 from '../../../rates/ctr-2014-04-03';
+import * as C2018 from '../../../rates/ctr-2018-06-01';
+import * as C2019 from '../../../rates/ctr-2019-06-01';
 import { FUEL_SUPPLEMENT_META, FUEL_SURCHARGE_PUBLISHED_SUPPLEMENT } from '../../../rates/obcctc-fuel-published-supplement';
 import { DEDUCTION_CATEGORIES, DEDUCTION_POLICY_META, DEDUCTION_SOURCES } from '../../../rates/deduction-policy';
 import type { DeductionPolicy } from '../types/input';
@@ -101,9 +104,34 @@ export const OBCCTC_2022_07_01_WITH_OVERTIME: RegulatedSchedule = {
   ...base2022, id: `${base2022.id}+overtime-${overtimeStart}`, effectiveFrom: overtimeStart, overtime: overtime(R2022.OVERTIME_FROM_2023_05_01),
 };
 
-// Every schedule in packages/rates, oldest first. Dates outside them resolve to nothing.
+// Shape of the pre-repeal Regulation files: hourly rates and the I/O callout floor. Everything else is untranscribed.
+interface RegulationFile {
+  readonly SCHEDULE_META: { readonly id: string; readonly effectiveFrom: string; readonly effectiveTo: string; readonly status: ScheduleStatus; readonly verifiedBy: string | null };
+  readonly HOURLY_TIER_THRESHOLD_HOURS: number;
+  readonly HOURLY: { readonly DEO: TierRates; readonly IEO: TierRates; readonly IO_HOURLY: TierRates };
+  readonly OVERTIME: 'no_rule_in_order';
+  readonly IO_CALLOUT_FLOOR_CENTS: number;
+}
+
+function fromRegulation(f: RegulationFile): RegulatedSchedule {
+  return {
+    id: f.SCHEDULE_META.id, status: f.SCHEDULE_META.status, verifiedBy: f.SCHEDULE_META.verifiedBy,
+    effectiveFrom: f.SCHEDULE_META.effectiveFrom, effectiveTo: f.SCHEDULE_META.effectiveTo,
+    hourly: { kind: 'present', value: { tierThresholdHours: f.HOURLY_TIER_THRESHOLD_HOURS, rates: f.HOURLY } },
+    overtime: overtime(f.OVERTIME),
+    calloutEmployee: { kind: 'absent' },
+    calloutIo: { kind: 'present', value: { floorCents: f.IO_CALLOUT_FLOOR_CENTS } },
+    onDock: { kind: 'absent' }, offDock: { kind: 'absent' }, pmr: { kind: 'absent' }, fuelFormula: { kind: 'absent' },
+  };
+}
+
+export const CTR_2014_04_03: RegulatedSchedule = fromRegulation(C2014);
+export const CTR_2018_06_01: RegulatedSchedule = fromRegulation(C2018);
+export const CTR_2019_06_01: RegulatedSchedule = fromRegulation(C2019);
+
+// Every schedule in packages/rates, oldest first. July 1, 2019 to March 31, 2020 has none: that order was not found. Dates outside them resolve to nothing.
 export const OBCCTC_SCHEDULES: ScheduleSet = {
-  schedules: [OBCCTC_2020_04_01, OBCCTC_2022_07_01, OBCCTC_2022_07_01_WITH_OVERTIME, OBCCTC_2023_07_01, OBCCTC_2024_07_01, OBCCTC_2025_07_01, OBCCTC_2026_07_01],
+  schedules: [CTR_2014_04_03, CTR_2018_06_01, CTR_2019_06_01, OBCCTC_2020_04_01, OBCCTC_2022_07_01, OBCCTC_2022_07_01_WITH_OVERTIME, OBCCTC_2023_07_01, OBCCTC_2024_07_01, OBCCTC_2025_07_01, OBCCTC_2026_07_01],
   fuelPublishedSeriesId: 'obcctc-fuel-surcharge-published',
   fuelPublishedStatus: 'verified',
   fuelPublished: R2026.FUEL_SURCHARGE_PUBLISHED,

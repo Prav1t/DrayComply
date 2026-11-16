@@ -20,7 +20,7 @@ describe('schedule resolution', () => {
   it('returns a gap, never the nearest schedule, for a date before any schedule', () => {
     const earliest = OBCCTC_SCHEDULES.schedules.map(s => s.effectiveFrom).sort()[0] ?? '';
     expect(scheduleFor(OBCCTC_SCHEDULES, addDays(earliest, -1))).toBeNull();   // the day before the oldest schedule loaded
-    expect(hourlyOn('2018-03-05')).toMatchObject({ kind: 'gap', code: 'NO_SCHEDULE_FOR_DATE' });
+    expect(hourlyOn('2013-03-05')).toMatchObject({ kind: 'gap', code: 'NO_SCHEDULE_FOR_DATE' });   // before the regime existed
   });
   it('returns a gap for a component the prior order does not hold', () => {
     const offDock = resolveComponent(OBCCTC_SCHEDULES, '2026-06-30', 'off-dock trip rate', s => s.offDock);

@@ -199,9 +199,10 @@ describe('aggregate and segregated verdicts that disagree', () => {
 
 describe('a date with no schedule', () => {
   const d = driver({
-    classPeriods: [{ class: 'DEO', from: '2014-04-03', to: null }],
-    hourlyEntries: [entry('E1', '2018-03-05', HOUR)],
-    payPeriods: [period({ from: '2018-03-04', to: '2018-03-17', payDate: '2018-03-23', lines: [line('L1', 'hourly', 99_999)] })],
+    // March 2013: before April 3, 2014, so no schedule can ever cover it. (Was March 2018 until the Regulation rates were loaded.)
+    classPeriods: [{ class: 'DEO', from: '2010-01-01', to: null }],
+    hourlyEntries: [entry('E1', '2013-03-05', HOUR)],
+    payPeriods: [period({ from: '2013-03-03', to: '2013-03-16', payDate: '2013-03-22', lines: [line('L1', 'hourly', 99_999)] })],
   });
   it('gives insufficient_data and never falls back to the nearest schedule', () => {
     const p = only([d]);

@@ -53,10 +53,12 @@ describe('OBCCTC adapter', () => {
   it('marks only the 2026 schedule as verified', () => {
     expect(OBCCTC_SCHEDULES.schedules.filter(s => s.status === 'verified').map(s => s.id)).toEqual(['obcctc-2026-07-01']);
   });
-  it('covers April 1, 2020 onward with no gap and no overlap between schedules', () => {
+  it('covers April 3, 2014 onward with no overlap, and exactly one hole: July 1, 2019 to March 31, 2020', () => {
+    // Updated as schedules were added: first 2022-07-01, then 2020-04-01, now the pre-repeal Regulation from 2014-04-03.
     const s = OBCCTC_SCHEDULES.schedules;
-    s.slice(1).forEach((next, i) => expect([next.id, next.effectiveFrom]).toEqual([next.id, addDays(s[i]?.effectiveTo ?? '', 1)]));
-    expect(s[0]?.effectiveFrom).toBe('2020-04-01');   // was 2022-07-01 until the April 2020 order was transcribed
+    const breaks = s.slice(1).flatMap((next, i) => (next.effectiveFrom === addDays(s[i]?.effectiveTo ?? '', 1) ? [] : [[s[i]?.effectiveTo, next.effectiveFrom]]));
+    expect(breaks).toEqual([['2019-06-30', '2020-04-01']]);
+    expect(s[0]?.effectiveFrom).toBe('2014-04-03');
   });
   it('gives the 2022 order no overtime rule until the overtime order takes effect on May 1, 2023', () => {
     expect(OBCCTC_2022_07_01.overtime.kind).toBe('not_in_force');   // known to have none, as opposed to not transcribed

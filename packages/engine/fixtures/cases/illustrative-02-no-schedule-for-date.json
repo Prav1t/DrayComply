@@ -1,6 +1,6 @@
 {
   "id": "illustrative-02-no-schedule-for-date",
-  "title": "Retroactive period before any loaded schedule",
+  "title": "A period before April 3, 2014, which no schedule can cover",
   "source": {
     "kind": "illustrative",
     "note": "Invented for illustration. Not drawn from any OBCCTC decision."
@@ -31,7 +31,7 @@
         "classPeriods": [
           {
             "class": "DEO",
-            "from": "2014-04-03",
+            "from": "2010-01-01",
             "to": null
           }
         ],
@@ -41,7 +41,7 @@
         },
         "hourlyCoverageFrom": {
           "kind": "reported",
-          "value": "2018-03-04"
+          "value": "2013-03-03"
         },
         "otherLicenseeHours": {
           "kind": "not_reported"
@@ -52,7 +52,7 @@
         "hourlyEntries": [
           {
             "entryId": "E-1",
-            "workDate": "2018-03-05",
+            "workDate": "2013-03-05",
             "seq": 0,
             "minutes": 480
           }
@@ -64,10 +64,10 @@
         },
         "payPeriods": [
           {
-            "payPeriodId": "PP-2018-03-A",
-            "from": "2018-03-04",
-            "to": "2018-03-17",
-            "payDate": "2018-03-23",
+            "payPeriodId": "PP-2013-03-A",
+            "from": "2013-03-03",
+            "to": "2013-03-16",
+            "payDate": "2013-03-22",
             "payer": "licensee",
             "waitTimeReceived": {
               "kind": "reported",
@@ -80,8 +80,8 @@
                 "cents": 20800,
                 "workPeriod": {
                   "kind": "stated",
-                  "from": "2018-03-04",
-                  "to": "2018-03-17"
+                  "from": "2013-03-03",
+                  "to": "2013-03-16"
                 }
               }
             ],
@@ -95,7 +95,7 @@
     "periods": [
       {
         "driverId": "DEO-1",
-        "payPeriodId": "PP-2018-03-A",
+        "payPeriodId": "PP-2013-03-A",
         "verdict": "insufficient_data",
         "aggregateCents": null,
         "segregatedCents": null,

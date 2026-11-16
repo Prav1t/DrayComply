@@ -101,3 +101,40 @@ describe('April 2020 order (unverified)', () => {
     expect(gapCodes(p)).toEqual(['SCHEDULE_COMPONENT_ABSENT']);
   });
 });
+
+describe('pre-repeal Regulation, 2014 to 2019 (unverified)', () => {
+  const deo = (date: string, from: string, to: string, paid: number) => driver({
+    classPeriods: [{ class: 'DEO', from: '2010-01-01', to: null }], hourlyEntries: [entry('E1', date, 10 * HOUR)],
+    payPeriods: [period({ from, to, payDate: to, lines: [line('L1', 'hourly', paid)] })],
+  });
+  it('prices a company driver in 2016 at $25.13, in late 2018 at $25.78, and in June 2019 at $26.30', () => {
+    expectClean(only([deo('2016-03-07', '2016-03-06', '2016-03-19', 25_130)]));
+    expectClean(only([deo('2018-09-10', '2018-09-09', '2018-09-22', 25_780)]));
+    expectClean(only([deo('2019-06-10', '2019-06-09', '2019-06-22', 26_300)]));
+  });
+  it('finds 2016 pay at $24.00 an hour short by $11.30 over ten hours', () => {
+    const p = only([deo('2016-03-07', '2016-03-06', '2016-03-19', 24_000)]);
+    expect([p.verdict, cents(p.aggregate)]).toEqual(['shortfall_aggregate', -1_130]);
+  });
+  it('steps up on June 1, 2018 exactly', () => {
+    expect(cents(only([deo('2018-05-31', '2018-05-27', '2018-06-09', 25_130)]).aggregate)).toBe(0);
+    expect(cents(only([deo('2018-06-01', '2018-05-27', '2018-06-09', 25_130)]).aggregate)).toBe(25_130 - 25_780);
+  });
+  it('says the rates are unverified and that no overtime rule was in force', () => {
+    const r = run([deo('2016-03-07', '2016-03-06', '2016-03-19', 25_130)]);
+    expect(r.provenance.schedules).toEqual([{ id: 'ctr-2014-04-03', status: 'unverified-transcription', verifiedBy: null }]);
+    expect(r.scope.map(n => n.code)).toEqual(['IEO_OFFSET_NOT_IMPLEMENTED', 'UNVERIFIED_SCHEDULE_USED', 'NO_OVERTIME_RULE_IN_FORCE']);
+  });
+  it('gives insufficient_data before April 3, 2014 and in the hole from July 2019 to March 2020', () => {
+    expect(gapCodes(only([deo('2014-04-02', '2014-03-30', '2014-04-12', 0)]))).toEqual(['NO_SCHEDULE_FOR_DATE']);
+    expect(gapCodes(only([deo('2019-09-09', '2019-09-08', '2019-09-21', 0)]))).toEqual(['NO_SCHEDULE_FOR_DATE']);
+  });
+  it('cannot price an hourly independent operator in those years: no fuel surcharge figures exist for them', () => {
+    const io = driver({ classPeriods: [{ class: 'IO_HOURLY', from: '2014-04-03', to: null }], hourlyEntries: [entry('E1', '2016-03-07', HOUR)], payPeriods: [period({ from: '2016-03-06', to: '2016-03-19', payDate: '2016-03-25' })] });
+    expect(gapCodes(only([io]))).toEqual(['FUEL_PCT_NOT_PUBLISHED']);
+  });
+  it('raises a gap for a trip: the regulation\'s trip schedules are not transcribed', () => {
+    const io = driver({ classPeriods: [{ class: 'IO_TRIP', from: '2014-04-03', to: null }], trips: [offDock('T1', '2016-03-07', 'A', 'B')], payPeriods: [period({ from: '2016-03-06', to: '2016-03-19', payDate: '2016-03-25' })] });
+    expect(only([io]).verdict).toBe('insufficient_data');
+  });
+});

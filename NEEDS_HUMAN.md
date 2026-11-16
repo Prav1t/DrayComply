@@ -16,7 +16,9 @@ Things only a person can get, check or decide. Nothing here was filled in from a
    version, now transcribed as `obcctc-2020-04-01.ts` and applied back to April 1, 2020 on an assumption (DECISIONS 80).
    The first-issued text would confirm or correct that. Ask OBCCTC, or check an archive of obcctc.ca.
 3a. **Fuel surcharge percentages for 2020** other than April (6%), and for July to December 2019 when the reference was quarterly.
-4. **Container Trucking Regulation, Part 4 and Schedules 1 and 2, as they read before repeal.** Readable at
+4. **PARTLY DONE: hourly rates are transcribed** (`ctr-2014-04-03.ts`, `ctr-2018-06-01.ts`, `ctr-2019-06-01.ts`). Still needed: the wording of
+   section 13 before May 14, 2015 (DECISIONS 97), the trip schedules, the employee callout rule and the fuel surcharge basis.
+   **Container Trucking Regulation, Part 4 and Schedules 1 and 2, as they read before repeal.** Readable at
    https://free.bcpublications.ca/civix/document/id/complete/statreg/248_2014_pit (BC Laws point-in-time table).
    Schedule 1 Table 2 as re-enacted by BC Reg 94/2019 (in force June 1 to June 30, 2019) is an image there.
    The amending regulations are BC Regs 72/2015, 186/2016, 92/2018, 94/2019 and 144/2019. Not yet transcribed; see HANDOFF.md.
