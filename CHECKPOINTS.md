@@ -58,4 +58,17 @@
 - Project knowledge: nothing replaced. Work is now pushed to GitHub (Prav1t/DrayComply, branch main).
 - DECISIONS 48 to 63. No new NEEDS_HUMAN entries.
 
-## Items 5 and 6: NOT STARTED
+## Item 5: packages/report. DONE 2026-11-16
+
+- `buildBinder(run, ingested, meta)` gives the audit binder as data: header, summary, scope statement, schedules used,
+  input file manifest with hashes, findings, gaps, rejected rows, and a worksheet per driver.
+- `renderPdf(binder)` lays it out as a Letter-size PDF with `pdf-lib`. Same binder, same bytes.
+- The header states "UNVERIFIED RATES WERE USED" whenever an unverified schedule priced anything.
+- I rendered a sample (one short trip, a missing PMR line, one orphan row) and read all four pages.
+- Four rules broken on purpose; a test failed each time.
+- Tests: 341 passing in 23 files.
+- New: everything under `packages/report`. Changed: root `package.json` (pdf-lib).
+- Project knowledge: nothing replaced. Pushed to GitHub.
+- DECISIONS 64 to 72. No new NEEDS_HUMAN entries.
+
+## Item 6: apps/web. NOT STARTED

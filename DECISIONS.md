@@ -89,3 +89,17 @@ Each entry: the choice, the alternative, one line of reasoning. Newest section l
 | 61 | SHA-256 is handwritten and synchronous; each file and the template are hashed into `provenance.sources` | Platform crypto | Keeps the library pure and usable in a browser or server alike; checked against published vectors |
 | 62 | One file (and sheet) per table | Several files per table | Simpler; concatenating exports is the caller's job for now |
 | 63 | `tripId` on a non-trip payment is ignored | Reject | Harmless; exports often repeat the column |
+
+## 2026-11-16: item 5 (packages/report)
+
+| # | Choice | Alternative | Why |
+|---|---|---|---|
+| 64 | Three layers: `buildBinder` (data), `layout` (flat blocks), `renderPdf` (paint) | Render straight from the run result | The binder and the block list are plain data, so wording is tested without parsing a PDF |
+| 65 | `pdf-lib` with the standard Helvetica and Courier fonts | Puppeteer/HTML to PDF, or pdfkit | Pure JavaScript, no browser, no font files, runs anywhere the app runs |
+| 66 | Text outside Latin-1 prints as "?" | Embed a Unicode font | The standard fonts cannot encode it; failing the whole report over a name is worse. Logged as a known limit |
+| 67 | `generatedAt` is an argument; the PDF's dates come from it; the same binder gives identical bytes | Stamp the current time | Reproducibility; the report layer reads no clock |
+| 68 | The unverified-rates notice is the third block, directly under the title, boxed | A footnote | Pravit's rule: every report header states that unverified rates were used |
+| 69 | The summary totals shortfalls only; surpluses are never netted in, and rounding-only differences are excluded | Net totals | A surplus for one driver does not reduce what another is short |
+| 70 | Both comparisons appear first and side by side on every worksheet; carryover and strict per-trip are labelled as second and third figures | Lead with one number | Never collapse the two comparisons, never label one as the answer |
+| 71 | Withheld drivers and unattributed rejects are repeated in the scope statement in plain words | Leave them in the reject list only | A reader of the summary must see what the figures do not cover |
+| 72 | Report text never uses the word "compliant"; a test enforces it | Trust review | Liability wording rule |

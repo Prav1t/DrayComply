@@ -28,13 +28,17 @@ Reply "continue" and I resume here.
    decimal.js parsing lives. XLSX parsing needs a dependency: choose one, record it in DECISIONS.md.
    Item 2 also has unblocked work left (2a, and the bulletin leads in NEEDS_HUMAN 14c) to pick up when ingest is done or first,
    as Pravit prefers.
-5. packages/report: **next.** It must print `scope` notes and "unverified rates were used" in the header whenever
+5. packages/report: **done.** Original note kept for reference: It must print `scope` notes and "unverified rates were used" in the header whenever
    `provenance.unverifiedSchedulesUsed` is true. Both are already in the run result.
-6. apps/web: not started.
+6. apps/web: **next.** Next.js 15. Flow: upload files, pick or build a mapping template, run ingest, show the reject list,
+   run the engine with `OBCCTC_SCHEDULES` and `DEDUCTION_POLICY`, show results, download the binder PDF.
+   Persisting templates and runs needs a database, and deploying needs an account: both are human decisions (log, do not do).
+   Start with a local-only build that keeps everything in memory and the browser.
+   Unblocked rate research also remains (item 2a and NEEDS_HUMAN 14c): Pravit has said to go and find missing values.
 
 ## Nothing is half-edited
 
-Every file on disk is complete and the suite is green: 326 tests, 22 files, strict typecheck clean. Engine is v0.3.0.
+Every file on disk is complete and the suite is green: 341 tests, 23 files, strict typecheck clean. Engine is v0.3.0.
 Everything is pushed to https://github.com/Prav1t/DrayComply (branch main) after each item.
 
 ## How to run
