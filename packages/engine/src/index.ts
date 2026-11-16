@@ -1,0 +1,10 @@
+export { runCompliance } from './run';
+export { validateRun } from './validate';
+export { ENGINE_VERSION } from './version';
+export { RULES, RULE_IDS, GAPS, SCOPE, type RuleId, type GapCode, type ScopeCode } from './rules/catalogue';
+export { parseComplianceInput, parseRunOptions, type Parsed } from './boundary/parse';
+export type * from './types/primitives';
+export type * from './types/schedule';
+export type * from './types/input';
+export type * from './types/result';
+export type { Weekday } from './math/dates';

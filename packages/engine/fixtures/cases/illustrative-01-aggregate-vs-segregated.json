@@ -1,0 +1,156 @@
+{
+  "id": "illustrative-01-aggregate-vs-segregated",
+  "title": "Surplus wait time masks a deficient trip rate in aggregate",
+  "source": {
+    "kind": "illustrative",
+    "note": "Invented for illustration. Not drawn from any OBCCTC decision."
+  },
+  "scheduleSet": "obcctc",
+  "options": {
+    "asOf": "2026-11-14",
+    "rounding": "half_up",
+    "deductionPolicy": {
+      "id": "synthetic-fixture-policy",
+      "categories": {},
+      "citations": {}
+    }
+  },
+  "input": {
+    "licenseeId": "ILLUSTRATIVE-LICENSEE",
+    "provenance": {
+      "sources": [
+        {
+          "name": "illustrative-01",
+          "digest": "none"
+        }
+      ]
+    },
+    "drivers": [
+      {
+        "driverId": "IO-1",
+        "classPeriods": [
+          {
+            "class": "IO_TRIP",
+            "from": "2026-01-01",
+            "to": null
+          }
+        ],
+        "openingCumulativeMinutes": {
+          "kind": "not_reported"
+        },
+        "hourlyCoverageFrom": {
+          "kind": "not_reported"
+        },
+        "otherLicenseeHours": {
+          "kind": "not_reported"
+        },
+        "fuelBasis": {
+          "kind": "published"
+        },
+        "hourlyEntries": [],
+        "trips": [
+          {
+            "tripId": "T-1",
+            "workDate": "2026-07-06",
+            "move": {
+              "kind": "off_dock",
+              "origin": {
+                "kind": "reported",
+                "value": "Q"
+              },
+              "destination": {
+                "kind": "reported",
+                "value": "S"
+              }
+            },
+            "containers": {
+              "kind": "reported",
+              "value": "one"
+            }
+          }
+        ],
+        "callouts": {
+          "kind": "flagged",
+          "records": []
+        },
+        "payPeriods": [
+          {
+            "payPeriodId": "PP-2026-07-A",
+            "from": "2026-07-05",
+            "to": "2026-07-18",
+            "payDate": "2026-07-24",
+            "payer": "licensee",
+            "waitTimeReceived": {
+              "kind": "reported",
+              "value": 5000
+            },
+            "lines": [
+              {
+                "lineId": "L-1",
+                "kind": "trip_rate",
+                "cents": 12000,
+                "link": {
+                  "kind": "trip",
+                  "tripId": "T-1"
+                },
+                "workPeriod": {
+                  "kind": "stated",
+                  "from": "2026-07-05",
+                  "to": "2026-07-18"
+                }
+              },
+              {
+                "lineId": "L-2",
+                "kind": "pmr",
+                "cents": 2500,
+                "workPeriod": {
+                  "kind": "stated",
+                  "from": "2026-07-05",
+                  "to": "2026-07-18"
+                }
+              },
+              {
+                "lineId": "L-3",
+                "kind": "fuel",
+                "cents": 6394,
+                "workPeriod": {
+                  "kind": "stated",
+                  "from": "2026-07-05",
+                  "to": "2026-07-18"
+                }
+              },
+              {
+                "lineId": "L-4",
+                "kind": "wait_time",
+                "cents": 8000,
+                "workPeriod": {
+                  "kind": "stated",
+                  "from": "2026-07-05",
+                  "to": "2026-07-18"
+                }
+              }
+            ],
+            "deductions": []
+          }
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "periods": [
+      {
+        "driverId": "IO-1",
+        "payPeriodId": "PP-2026-07-A",
+        "verdict": "shortfall_segregated_only",
+        "aggregateCents": 1100,
+        "segregatedCents": -1900,
+        "strictPerTripCents": -1900,
+        "ruleIds": [
+          "BASE_SHORTFALL_SEGREGATED",
+          "TRIP_RATE_BELOW_MINIMUM"
+        ],
+        "gapCodes": []
+      }
+    ]
+  }
+}

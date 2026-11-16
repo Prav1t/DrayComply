@@ -1,0 +1,110 @@
+{
+  "id": "illustrative-02-no-schedule-for-date",
+  "title": "Retroactive period before any loaded schedule",
+  "source": {
+    "kind": "illustrative",
+    "note": "Invented for illustration. Not drawn from any OBCCTC decision."
+  },
+  "scheduleSet": "obcctc",
+  "options": {
+    "asOf": "2026-11-14",
+    "rounding": "half_up",
+    "deductionPolicy": {
+      "id": "synthetic-fixture-policy",
+      "categories": {},
+      "citations": {}
+    }
+  },
+  "input": {
+    "licenseeId": "ILLUSTRATIVE-LICENSEE",
+    "provenance": {
+      "sources": [
+        {
+          "name": "illustrative-02",
+          "digest": "none"
+        }
+      ]
+    },
+    "drivers": [
+      {
+        "driverId": "DEO-1",
+        "classPeriods": [
+          {
+            "class": "DEO",
+            "from": "2014-04-03",
+            "to": null
+          }
+        ],
+        "openingCumulativeMinutes": {
+          "kind": "reported",
+          "value": 0
+        },
+        "hourlyCoverageFrom": {
+          "kind": "reported",
+          "value": "2018-03-04"
+        },
+        "otherLicenseeHours": {
+          "kind": "not_reported"
+        },
+        "fuelBasis": {
+          "kind": "published"
+        },
+        "hourlyEntries": [
+          {
+            "entryId": "E-1",
+            "workDate": "2018-03-05",
+            "seq": 0,
+            "minutes": 480
+          }
+        ],
+        "trips": [],
+        "callouts": {
+          "kind": "flagged",
+          "records": []
+        },
+        "payPeriods": [
+          {
+            "payPeriodId": "PP-2018-03-A",
+            "from": "2018-03-04",
+            "to": "2018-03-17",
+            "payDate": "2018-03-23",
+            "payer": "licensee",
+            "waitTimeReceived": {
+              "kind": "reported",
+              "value": 0
+            },
+            "lines": [
+              {
+                "lineId": "L-1",
+                "kind": "hourly",
+                "cents": 20800,
+                "workPeriod": {
+                  "kind": "stated",
+                  "from": "2018-03-04",
+                  "to": "2018-03-17"
+                }
+              }
+            ],
+            "deductions": []
+          }
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "periods": [
+      {
+        "driverId": "DEO-1",
+        "payPeriodId": "PP-2018-03-A",
+        "verdict": "insufficient_data",
+        "aggregateCents": null,
+        "segregatedCents": null,
+        "strictPerTripCents": null,
+        "ruleIds": [],
+        "gapCodes": [
+          "NO_SCHEDULE_FOR_DATE"
+        ]
+      }
+    ]
+  }
+}
