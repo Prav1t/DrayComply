@@ -130,3 +130,15 @@
 - `previewTable` and `parseTableMapping` added to ingest. The one build warning is fixed.
 - `next build` succeeds with no warnings. NOT clicked through in a browser.
 - Tests: 408 passing in 30 files. DECISIONS 101 to 105.
+
+## Pre-repeal Regulation, trip schedules. DONE 2026-11-16
+
+- On-dock rates (25 areas, three terminals) are in for April 3, 2014 to May 31, 2019; off-dock rates (25 by 25) for April 3, 2014 to May 31, 2018.
+- The off-dock table changes on July 20, 2016 (two rows), handled as a second schedule from the same file.
+- Engine v0.5.0: a schedule can say no positioning movement rate was in force; nothing is owed and the PMR rules report not applicable.
+- Still images in the source: off-dock June 2018 to June 2019, on-dock June 2019. Those trips are a gap.
+- Independent operators in 2014 to 2019 still return insufficient data overall: no fuel surcharge figures exist for those years.
+- Mutation checks: PMR-as-gap, swapped origin and destination, a symmetric off-dock typo, and a digit in each on-dock table. All caught.
+- Tests: 430 passing in 30 files. DECISIONS 106 to 113. NEEDS_HUMAN 4 rewritten, 4a to 4c added.
+- Changed: `packages/rates/ctr-2014-04-03.ts`, `ctr-2018-06-01.ts`, `ctr-2019-06-01.ts` and the first two test suites;
+  `packages/engine/src/adapters/obcctc.ts`, `trip/owed.ts`, `assemble/result.ts`, `version.ts`, `adapters/history.test.ts`. None replaces a project knowledge file.

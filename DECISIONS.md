@@ -166,3 +166,16 @@ Each entry: the choice, the alternative, one line of reasoning. Newest section l
 | 103 | The preview always shows rejected rows with every reason, then fills the rest of five rows with rows that read | First five rows only | The rows worth seeing are the ones that fail |
 | 104 | `parseTableMapping` is exported from ingest and used by the full template parser | A second per-table check in the app | One definition of a valid table mapping |
 | 105 | Build warning fixed: `align-items: end` became `flex-end` | Ignore | It was the only build warning |
+
+## 2026-11-16: pre-repeal Regulation, trip schedules (engine v0.5.0)
+
+| # | Choice | Alternative | Why |
+|---|---|---|---|
+| 106 | Transcribed the Regulation's trip tables that are text in the source: Schedule 2 (on-dock) for April 2014 to May 2019, Schedule 1 (off-dock) for April 2014 to May 2018. The image-only tables stay null | Wait for fuel figures | Per-trip figures are useful on their own once fuel arrives; the tables were readable today. Two tests whose premise was "trip tables are null" were re-pointed |
+| 107 | The off-dock table as first enacted is stored as printed, lopsided in two pairs (F to K $110, K to F $100; I to K $100, K to I $110) | Symmetrise it | The source prints it that way and BC Reg 186/2016 replaced exactly those rows. The engine already reads [origin][destination] |
+| 108 | The July 20, 2016 off-dock change is a second schedule built by the adapter from the same file (`ctr-2014-04-03+off-dock-2016-07-20`) | A fourth file | Same pattern as the May 2023 overtime order: one thing changed, everything else is shared |
+| 109 | The tables re-enacted by BC Reg 92/2018 on May 4, 2018 apply from June 1, 2018 | Apply them from May 4 | ASSUMPTION resting on section 19(4): increases are payable only from June 1, 2018. Every on-dock figure rose, so nothing is understated |
+| 110 | No positioning movement rate before July 1, 2019: the Regulation files say `POSITIONING_MOVEMENT = 'no_rule_in_order'`, the engine owes zero, and both PMR rules report `not_applicable` | Leave it a gap | It is known, not missing (DECISIONS 93 foresaw this). "Not triggered" would read as a passed check on a rule that did not exist |
+| 111 | Two containers on-dock under the Regulation is a gap | Pay the one-container rate | Section 12 states 1.5x for off-dock only, the same silence as the 2026 order, handled the same way |
+| 112 | Off-dock table totals are pinned in tests as checksums of my own transcription | No checksum | Guards against later accidental edits only. It cannot catch a misread shared by both reads of the page |
+| 113 | Employee callout under the Regulation stays untranscribed | Encode 4x hourly from May 14, 2015 | Second read agrees on 4x, but section 16 is still headed for operators paid per trip. DECISIONS 98 stands until someone reads the section by eye |

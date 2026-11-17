@@ -286,7 +286,9 @@ export function evaluatePeriod(ctx: DriverContext, period: PayPeriod): PeriodOut
     : trips.length > 0 && !pmrEvaluated ? 'not_evaluated'
     : 'no_records_finding_detected';
 
-  const evaluations = evaluate({ ctx, period, findings, computable, open, hourly, trips, callouts, pmrPriced, fuelChecked, periodDeltas });
+  // A priced amount of zero on every trip means no positioning movement rate was in force.
+  const pmrInForce = trips.some(i => i.pmr === null || isPositive(i.pmr));
+  const evaluations = evaluate({ ctx, period, findings, computable, open, hourly, trips, callouts, pmrPriced, pmrInForce, fuelChecked, periodDeltas });
   return {
     result: {
       driverId: driver.driverId, payPeriodId: period.payPeriodId, verdict, recordsVerdict,
@@ -307,6 +309,7 @@ interface EvaluationFacts {
   readonly trips: readonly TripItem[];
   readonly callouts: readonly CalloutItem[];
   readonly pmrPriced: boolean;
+  readonly pmrInForce: boolean;
   readonly fuelChecked: boolean;
   readonly periodDeltas: ReadonlyMap<RuleId, ComputedDelta>;
 }
@@ -332,8 +335,8 @@ function evaluate(f: EvaluationFacts): RuleEvaluation[] {
     CALLOUT_BELOW_MINIMUM: () => status(RULES.CALLOUT_BELOW_MINIMUM, true, flagged && f.computable, flagged ? GAPPED : 'Callout days were not flagged in the input.'),
     TRIP_RATE_BELOW_MINIMUM: () => status(RULES.TRIP_RATE_BELOW_MINIMUM, f.trips.length > 0, tripsPriced, 'One or more trips could not be priced.'),
     TRIP_NO_MATCHING_PAYMENT: () => status(RULES.TRIP_NO_MATCHING_PAYMENT, f.trips.length > 0, tripsPriced && !f.open, f.open ? 'The pay period is still open.' : 'One or more trips could not be priced.'),
-    PMR_BELOW_MINIMUM: () => status(RULES.PMR_BELOW_MINIMUM, f.trips.length > 0, f.pmrPriced && !f.open, f.open ? 'The pay period is still open.' : 'The positioning movement rate could not be priced for every trip.'),
-    PMR_NOT_ITEMISED: () => status(RULES.PMR_NOT_ITEMISED, f.trips.length > 0, f.pmrPriced && !f.open, f.open ? 'The pay period is still open.' : 'The positioning movement rate could not be priced for every trip.'),
+    PMR_BELOW_MINIMUM: () => status(RULES.PMR_BELOW_MINIMUM, f.trips.length > 0 && f.pmrInForce, f.pmrPriced && !f.open, f.open ? 'The pay period is still open.' : 'The positioning movement rate could not be priced for every trip.'),
+    PMR_NOT_ITEMISED: () => status(RULES.PMR_NOT_ITEMISED, f.trips.length > 0 && f.pmrInForce, f.pmrPriced && !f.open, f.open ? 'The pay period is still open.' : 'The positioning movement rate could not be priced for every trip.'),
     FUEL_SURCHARGE_BELOW_MINIMUM: () => status(RULES.FUEL_SURCHARGE_BELOW_MINIMUM, true, f.computable, GAPPED),
     FUEL_PUBLISHED_FORMULA_MISMATCH: () => status(RULES.FUEL_PUBLISHED_FORMULA_MISMATCH, true, f.fuelChecked, 'No published percentage was checked against the formula in this period.'),
     WAIT_TIME_NOT_PASSED_THROUGH: () => status(RULES.WAIT_TIME_NOT_PASSED_THROUGH, true, f.computable, GAPPED),

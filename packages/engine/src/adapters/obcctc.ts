@@ -104,13 +104,23 @@ export const OBCCTC_2022_07_01_WITH_OVERTIME: RegulatedSchedule = {
   ...base2022, id: `${base2022.id}+overtime-${overtimeStart}`, effectiveFrom: overtimeStart, overtime: overtime(R2022.OVERTIME_FROM_2023_05_01),
 };
 
-// Shape of the pre-repeal Regulation files: hourly rates and the I/O callout floor. Everything else is untranscribed.
+// Shape of the pre-repeal Regulation files. A null table is one nobody has transcribed (an image in the source).
 interface RegulationFile {
   readonly SCHEDULE_META: { readonly id: string; readonly effectiveFrom: string; readonly effectiveTo: string; readonly status: ScheduleStatus; readonly verifiedBy: string | null };
   readonly HOURLY_TIER_THRESHOLD_HOURS: number;
   readonly HOURLY: { readonly DEO: TierRates; readonly IEO: TierRates; readonly IO_HOURLY: TierRates };
   readonly OVERTIME: 'no_rule_in_order';
   readonly IO_CALLOUT_FLOOR_CENTS: number;
+  readonly ON_DOCK: RateTable | null;
+  readonly OFF_DOCK: RateTable | null;
+  readonly MULTI_CONTAINER: { readonly offDockTwoContainerTripMultiplier: Ratio };
+  readonly POSITIONING_MOVEMENT: 'no_rule_in_order';
+  readonly EMPLOYEE_CALLOUT: null;
+  readonly FUEL_SURCHARGE: null;
+}
+
+function offDockRules(table: RateTable | null, multiplier: Ratio): RegulatedSchedule['offDock'] {
+  return table === null ? { kind: 'absent' } : { kind: 'present', value: { table, twoContainerMultiplier: exact(multiplier, 'MULTI_CONTAINER.offDockTwoContainerTripMultiplier') } };
 }
 
 function fromRegulation(f: RegulationFile): RegulatedSchedule {
@@ -121,17 +131,27 @@ function fromRegulation(f: RegulationFile): RegulatedSchedule {
     overtime: overtime(f.OVERTIME),
     calloutEmployee: { kind: 'absent' },
     calloutIo: { kind: 'present', value: { floorCents: f.IO_CALLOUT_FLOOR_CENTS } },
-    onDock: { kind: 'absent' }, offDock: { kind: 'absent' }, pmr: { kind: 'absent' }, fuelFormula: { kind: 'absent' },
+    onDock: f.ON_DOCK === null ? { kind: 'absent' } : { kind: 'present', value: { table: f.ON_DOCK } },
+    offDock: offDockRules(f.OFF_DOCK, f.MULTI_CONTAINER.offDockTwoContainerTripMultiplier),
+    pmr: { kind: 'not_in_force' },
+    fuelFormula: { kind: 'absent' },
   };
 }
 
-export const CTR_2014_04_03: RegulatedSchedule = fromRegulation(C2014);
+// BC Reg 186/2016 replaced two rows of the off-dock table on July 20, 2016; nothing else in the 2014 file changes that day.
+const base2014 = fromRegulation(C2014);
+const offDock2016 = C2014.OFF_DOCK_FROM_2016_07_20;
+export const CTR_2014_04_03: RegulatedSchedule = { ...base2014, effectiveTo: addDays(offDock2016.effectiveFrom, -1) };
+export const CTR_2014_04_03_OFF_DOCK_2016: RegulatedSchedule = {
+  ...base2014, id: `${base2014.id}+off-dock-${offDock2016.effectiveFrom}`, effectiveFrom: offDock2016.effectiveFrom,
+  offDock: offDockRules(offDock2016.table, C2014.MULTI_CONTAINER.offDockTwoContainerTripMultiplier),
+};
 export const CTR_2018_06_01: RegulatedSchedule = fromRegulation(C2018);
 export const CTR_2019_06_01: RegulatedSchedule = fromRegulation(C2019);
 
 // Every schedule in packages/rates, oldest first. July 1, 2019 to March 31, 2020 has none: that order was not found. Dates outside them resolve to nothing.
 export const OBCCTC_SCHEDULES: ScheduleSet = {
-  schedules: [CTR_2014_04_03, CTR_2018_06_01, CTR_2019_06_01, OBCCTC_2020_04_01, OBCCTC_2022_07_01, OBCCTC_2022_07_01_WITH_OVERTIME, OBCCTC_2023_07_01, OBCCTC_2024_07_01, OBCCTC_2025_07_01, OBCCTC_2026_07_01],
+  schedules: [CTR_2014_04_03, CTR_2014_04_03_OFF_DOCK_2016, CTR_2018_06_01, CTR_2019_06_01, OBCCTC_2020_04_01, OBCCTC_2022_07_01, OBCCTC_2022_07_01_WITH_OVERTIME, OBCCTC_2023_07_01, OBCCTC_2024_07_01, OBCCTC_2025_07_01, OBCCTC_2026_07_01],
   fuelPublishedSeriesId: 'obcctc-fuel-surcharge-published',
   fuelPublishedStatus: 'verified',
   fuelPublished: R2026.FUEL_SURCHARGE_PUBLISHED,

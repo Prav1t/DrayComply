@@ -1,6 +1,6 @@
 // Integrity tests for the UNVERIFIED transcription of the pre-repeal Regulation, services 2018-06-01 to 2019-05-31.
 import { describe, it, expect } from 'vitest';
-import { SCHEDULE_META, HOURLY, HOURLY_TIER_THRESHOLD_HOURS, OVERTIME, IO_CALLOUT_FLOOR_CENTS, ON_DOCK, OFF_DOCK, EMPLOYEE_CALLOUT, FUEL_SURCHARGE } from './ctr-2018-06-01';
+import { SCHEDULE_META, HOURLY, HOURLY_TIER_THRESHOLD_HOURS, OVERTIME, IO_CALLOUT_FLOOR_CENTS, ON_DOCK, OFF_DOCK, ZONES, MULTI_CONTAINER, POSITIONING_MOVEMENT, EMPLOYEE_CALLOUT, FUEL_SURCHARGE, type ZoneLetter } from './ctr-2018-06-01';
 import * as NEXT from './ctr-2019-06-01';
 
 describe('status and dates', () => {
@@ -42,6 +42,34 @@ describe('what is not here', () => {
     expect(OVERTIME).toBe('no_rule_in_order');
   });
   it('leaves the untranscribed parts null, not guessed', () => {
-    expect([ON_DOCK, OFF_DOCK, EMPLOYEE_CALLOUT, FUEL_SURCHARGE]).toEqual([null, null, null, null]);
+    // Changed 2026-11-16 (DECISIONS 106): the trip schedules that are text in the source are now transcribed.
+    expect([OFF_DOCK, EMPLOYEE_CALLOUT, FUEL_SURCHARGE]).toEqual([null, null, null]);
+  });
+});
+
+const L = [...'ABCDEFGHIJKLMNOPQRSTUVWXY'] as ZoneLetter[];
+const T = ['centermVanterm', 'deltaport', 'fraserSurreyDocks'] as const;
+
+describe('on-dock table', () => {
+  it('covers 25 areas, with item 8 named City of Delta', () => {
+    expect(ZONES.map(z => z.letter)).toEqual(L);
+    expect(ZONES[7]?.name).toBe('City of Delta');
+    expect(Object.keys(ON_DOCK)).toEqual(L);
+  });
+  it('holds only whole multiples of ten cents, and has a fixed total', () => {
+    L.forEach(a => T.forEach(t => expect({ a, t, rem: ON_DOCK[a][t] % 10 }).toEqual({ a, t, rem: 0 })));
+    // Sum of all 75 cells as transcribed on 2026-11-16. The value-to-value check against the 2014 file is in that file's suite.
+    expect(L.reduce((sum, a) => sum + T.reduce((row, t) => row + ON_DOCK[a][t], 0), 0)).toBe(1_134_190);
+  });
+  it('pays most for Chilliwack and least for the nearest area at every terminal', () => {
+    T.forEach(t => expect(Math.max(...L.map(a => ON_DOCK[a][t]))).toBe(ON_DOCK.E[t]));
+    expect([ON_DOCK.X.centermVanterm, ON_DOCK.H.deltaport, ON_DOCK.B.fraserSurreyDocks]).toEqual([11_490, 11_490, 11_490]);
+  });
+});
+
+describe('other trip rules', () => {
+  it('pays 1.5x for two containers off-dock and has no positioning movement rate', () => {
+    expect(MULTI_CONTAINER.offDockTwoContainerTripMultiplier).toEqual({ num: 3, den: 2 });
+    expect(POSITIONING_MOVEMENT).toBe('no_rule_in_order');
   });
 });

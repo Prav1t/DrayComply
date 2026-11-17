@@ -2,8 +2,10 @@
 import { describe, it, expect } from 'vitest';
 import * as R2022 from '../../../rates/obcctc-2022-07-01';
 import * as R2024 from '../../../rates/obcctc-2024-07-01';
+import * as C2014 from '../../../rates/ctr-2014-04-03';
+import * as C2018 from '../../../rates/ctr-2018-06-01';
 import { OBCCTC_SCHEDULES } from './obcctc';
-import { IO_TRIP, OPTIONS, cents, driver, entry, expectClean, gapCodes, line, offDock, only, period, run, tripLine } from '../testing/builders';
+import { IO_TRIP, OPTIONS, cents, driver, entry, expectClean, gapCodes, line, offDock, onDock, only, period, run, tripLine } from '../testing/builders';
 
 const HOUR = 60;
 const aug2022 = { from: '2022-08-07', to: '2022-08-20', payDate: '2022-08-26' };
@@ -133,8 +135,68 @@ describe('pre-repeal Regulation, 2014 to 2019 (unverified)', () => {
     const io = driver({ classPeriods: [{ class: 'IO_HOURLY', from: '2014-04-03', to: null }], hourlyEntries: [entry('E1', '2016-03-07', HOUR)], payPeriods: [period({ from: '2016-03-06', to: '2016-03-19', payDate: '2016-03-25' })] });
     expect(gapCodes(only([io]))).toEqual(['FUEL_PCT_NOT_PUBLISHED']);
   });
-  it('raises a gap for a trip: the regulation\'s trip schedules are not transcribed', () => {
+  // Changed 2026-11-16 (DECISIONS 106): the trip schedules are now transcribed, so the remaining gap is the fuel surcharge alone.
+  it('prices a 2016 trip but still cannot give a verdict: no fuel surcharge figure exists for that month', () => {
     const io = driver({ classPeriods: [{ class: 'IO_TRIP', from: '2014-04-03', to: null }], trips: [offDock('T1', '2016-03-07', 'A', 'B')], payPeriods: [period({ from: '2016-03-06', to: '2016-03-19', payDate: '2016-03-25' })] });
-    expect(only([io]).verdict).toBe('insufficient_data');
+    const p = only([io]);
+    expect(p.verdict).toBe('insufficient_data');
+    expect(gapCodes(p)).toEqual(['FUEL_PCT_NOT_PUBLISHED']);
+  });
+});
+
+describe('pre-repeal Regulation trip schedules (unverified)', () => {
+  // SYNTHETIC: a 0% surcharge for three months, so that trip pricing can be seen end to end. No such figures are in packages/rates.
+  const zeroFuel = { ...OBCCTC_SCHEDULES, fuelSupplement: { ...OBCCTC_SCHEDULES.fuelSupplement, months: {
+    ...OBCCTC_SCHEDULES.fuelSupplement.months,
+    '2016-03': { referenceCentsPerLitre: null, pct: 0 }, '2016-08': { referenceCentsPerLitre: null, pct: 0 }, '2018-08': { referenceCentsPerLitre: null, pct: 0 },
+  } } };
+  const SINCE_2014 = [{ class: 'IO_TRIP' as const, from: '2014-04-03', to: null }];
+  const mar2016 = { from: '2016-03-06', to: '2016-03-19', payDate: '2016-03-25' };
+  const aug2016 = { from: '2016-08-07', to: '2016-08-20', payDate: '2016-08-26' };
+  const aug2018 = { from: '2018-08-05', to: '2018-08-18', payDate: '2018-08-24' };
+  const paid = (trip: ReturnType<typeof offDock>, when: typeof mar2016, cents: number) =>
+    only([driver({ classPeriods: SINCE_2014, trips: [trip], payPeriods: [period({ ...when, lines: [tripLine('L1', trip.tripId, cents)] })] })], OPTIONS, zeroFuel);
+
+  it('prices Abbotsford to Annacis Island in 2016 at $130.00, and finds $125.00 short by $5.00', () => {
+    expectClean(paid(offDock('T1', '2016-03-07', 'A', 'B'), mar2016, C2014.OFF_DOCK.A.B));
+    const short = paid(offDock('T1', '2016-03-07', 'A', 'B'), mar2016, 12_500);
+    expect([short.verdict, cents(short.aggregate)]).toEqual(['shortfall_aggregate', -500]);
+  });
+  it('pays 1.5x for two containers off-dock: $195.00', () => {
+    expectClean(paid(offDock('T1', '2016-03-07', 'A', 'B', 'two'), mar2016, 19_500));
+    expect(cents(paid(offDock('T1', '2016-03-07', 'A', 'B', 'two'), mar2016, 19_499).aggregate)).toBe(-1);
+  });
+  it('reads the table by origin then destination while it is lopsided: Cloverdale to Langley City is $110.00, the return $100.00', () => {
+    expect(cents(paid(offDock('T1', '2016-03-07', 'F', 'K'), mar2016, 10_000).aggregate)).toBe(-1_000);
+    expectClean(paid(offDock('T1', '2016-03-07', 'K', 'F'), mar2016, 10_000));
+  });
+  it('switches to the amended rows on July 20, 2016: Cloverdale to Langley City becomes $100.00', () => {
+    const p = paid(offDock('T1', '2016-08-08', 'F', 'K'), aug2016, 10_000);
+    expectClean(p);
+    expect(run([driver({ classPeriods: SINCE_2014, trips: [offDock('T1', '2016-08-08', 'F', 'K')], payPeriods: [period({ ...aug2016, lines: [tripLine('L1', 'T1', 10_000)] })] })], OPTIONS, zeroFuel)
+      .provenance.schedules.map(x => x.id)).toContain('ctr-2014-04-03+off-dock-2016-07-20');
+  });
+  it('prices on-dock Delta to Deltaport at $112.00 in 2016 and $114.90 from June 2018', () => {
+    expectClean(paid(onDock('T1', '2016-03-07', 'H', 'deltaport'), mar2016, C2014.ON_DOCK.H.deltaport));
+    expectClean(paid(onDock('T1', '2018-08-06', 'H', 'deltaport'), aug2018, C2018.ON_DOCK.H.deltaport));
+    expect(cents(paid(onDock('T1', '2018-08-06', 'H', 'deltaport'), aug2018, C2014.ON_DOCK.H.deltaport).aggregate)).toBe(11_200 - 11_490);
+  });
+  it('owes no positioning movement rate before July 2019, and marks both PMR rules not applicable instead of passed', () => {
+    const p = paid(offDock('T1', '2016-03-07', 'A', 'B'), mar2016, 13_000);
+    expect(p.findings).toEqual([]);
+    expect(p.evaluations.filter(e => e.ruleId.startsWith('PMR_')).map(e => e.status)).toEqual(['not_applicable', 'not_applicable']);
+  });
+  it('still evaluates the PMR rules where the rate exists', () => {
+    const p = only([driver({ classPeriods: IO_TRIP, trips: [offDock('T1', '2022-08-08', 'Q', 'S')], payPeriods: [period({ from: '2022-08-07', to: '2022-08-20', payDate: '2022-08-26', lines: [tripLine('L1', 'T1', 12_000), line('L3', 'fuel', 5_760)] })] })]);
+    expect(p.evaluations.find(e => e.ruleId === 'PMR_NOT_ITEMISED')?.status).toBe('triggered');
+  });
+  it('raises a gap where the source table is an image: off-dock from June 2018, and every trip in June 2019', () => {
+    expect(gapCodes(paid(offDock('T1', '2018-08-06', 'A', 'B'), aug2018, 0))).toEqual(['SCHEDULE_COMPONENT_ABSENT']);
+    const june = only([driver({ classPeriods: SINCE_2014, trips: [onDock('T1', '2019-06-10', 'H', 'deltaport')], payPeriods: [period({ from: '2019-06-09', to: '2019-06-22', payDate: '2019-06-28' })] })]);
+    expect(gapCodes(june)).toContain('SCHEDULE_COMPONENT_ABSENT');
+  });
+  it('raises a gap for two containers on-dock, and for an area the Regulation never had', () => {
+    expect(gapCodes(paid(onDock('T1', '2016-03-07', 'H', 'deltaport', 'two'), mar2016, 0))).toEqual(['ON_DOCK_MULTI_CONTAINER_UNDEFINED']);
+    expect(gapCodes(paid(offDock('T1', '2016-03-07', 'A', 'Z'), mar2016, 0))).toEqual(['ZONE_NOT_IN_SCHEDULE']);
   });
 });

@@ -3,7 +3,7 @@ import type { RateTable, ScheduleSet } from '../types/schedule';
 import type { GapDraft, TripItem } from '../types/internal';
 import { GAPS } from '../rules/catalogue';
 import { classAt } from '../classify/class-at';
-import { resolveComponent } from '../schedule/resolve';
+import { resolveComponent, resolveOptionalComponent } from '../schedule/resolve';
 import { fromInt, mulRatio, type Frac } from '../math/ratio';
 import { pmrOwed } from './pmr';
 
@@ -88,8 +88,10 @@ export function computeTrips(driver: DriverInput, schedules: ScheduleSet): TripO
     // The PMR has its own two-container rule, so it prices even when the trip rate cannot.
     let pmr: Frac | null = null;
     if (t.containers.kind === 'reported') {
-      const rules = resolveComponent(schedules, t.workDate, 'positioning movement rate', s => s.pmr);
+      const rules = resolveOptionalComponent(schedules, t.workDate, 'positioning movement rate', s => s.pmr);
       if (rules.kind === 'gap') gap(rules.code, rules.detail);
+      // No positioning movement rate existed under this schedule: nothing is owed, and that is knowledge, not a gap.
+      else if (rules.kind === 'not_in_force') { pmr = fromInt(0); scheduleIds.push(rules.scheduleId); }
       else { pmr = pmrOwed(rules.value, t.containers.value); scheduleIds.push(rules.scheduleId); }
     }
     items.push({ tripId: t.tripId, workDate: t.workDate, scheduleIds, description: describe(t), base, pmr });
