@@ -19,12 +19,12 @@ import { ZERO, add, fromExact, isPositive, type Frac } from './math/ratio';
 const SEVERITY: readonly Verdict[] = ['insufficient_data', 'shortfall_aggregate', 'shortfall_segregated_only', 'no_shortfall_detected'];
 const RECORDS_SEVERITY: readonly RecordsVerdict[] = ['records_finding', 'not_evaluated', 'no_records_finding_detected'];
 
-function rollUp(periods: readonly PeriodResult[], driverGaps: readonly Gap[]): Verdict {
+export function rollUp(periods: readonly PeriodResult[], driverGaps: readonly Gap[]): Verdict {
   if (driverGaps.length > 0 || periods.length === 0) return 'insufficient_data';
   return SEVERITY.find(v => periods.some(p => p.verdict === v)) ?? 'insufficient_data';
 }
 
-const rollUpRecords = (periods: readonly PeriodResult[]): RecordsVerdict =>
+export const rollUpRecords = (periods: readonly PeriodResult[]): RecordsVerdict =>
   RECORDS_SEVERITY.find(v => periods.some(p => p.recordsVerdict === v)) ?? 'not_evaluated';
 
 // Second figure only: a surplus carries forward to later periods; a shortfall never carries.

@@ -1,4 +1,4 @@
-import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
+import { PDFDocument, StandardFonts, degrees, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
 import type { AuditBinder } from './binder';
 import { layout, type Block } from './layout';
 
@@ -41,6 +41,7 @@ export async function renderPdf(binder: AuditBinder): Promise<Uint8Array> {
   doc.setTitle(`${binder.header.title} - ${safe(binder.header.licenseeName)}`);
   doc.setProducer('DrayComply report');
   doc.setCreator(`DrayComply engine ${binder.header.engineVersion}`);
+  if (binder.header.watermark !== null) doc.setSubject(binder.header.watermark);
   doc.setCreationDate(stamp);
   doc.setModificationDate(stamp);
 
@@ -97,6 +98,16 @@ export async function renderPdf(binder: AuditBinder): Promise<Uint8Array> {
   };
   layout(binder).forEach(paint);
 
+  // The watermark crosses every page, corner to corner, over the text.
+  const mark = binder.header.watermark;
+  if (mark !== null) {
+    const size = 34;
+    const length = bold.widthOfTextAtSize(mark, size);
+    const angle = Math.atan2(PAGE.height, PAGE.width);
+    const x = PAGE.width / 2 - (length / 2) * Math.cos(angle);
+    const y0 = PAGE.height / 2 - (length / 2) * Math.sin(angle);
+    pages.forEach(p => p.drawText(mark, { x, y: y0, size, font: bold, color: rgb(0.75, 0.1, 0.1), opacity: 0.28, rotate: degrees((angle * 180) / Math.PI) }));
+  }
   pages.forEach((p, i) => {
     p.drawText(`${FOOTER}   Page ${i + 1} of ${pages.length}`, { x: PAGE.margin, y: 30, size: 7.5, font: regular, color: rgb(0.3, 0.3, 0.3) });
   });

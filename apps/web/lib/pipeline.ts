@@ -2,6 +2,7 @@
 import { ingest, type IngestResult, type SourceFile } from '../../../packages/ingest/src/index';
 import { runCompliance, type RoundingMode, type RunResult } from '../../../packages/engine/src/index';
 import { DEDUCTION_POLICY, OBCCTC_SCHEDULES } from '../../../packages/engine/src/adapters/obcctc';
+import { LEGAL_INTERPRETATIONS } from '../../../packages/rates/legal-interpretations';
 import { buildBinder, type AuditBinder } from '../../../packages/report/src/index';
 
 export interface PipelineOptions {
@@ -27,6 +28,6 @@ export function runPipeline(files: readonly SourceFile[], template: unknown, opt
   if (ingested.kind === 'file_invalid') return { kind: 'stopped', stage: 'files', errors: ingested.errors };
   const run = runCompliance(ingested.input, OBCCTC_SCHEDULES, { asOf: options.asOf, rounding: options.rounding, deductionPolicy: DEDUCTION_POLICY });
   if (run.kind === 'invalid_input') return { kind: 'stopped', stage: 'input', errors: run.errors };
-  const binder = buildBinder(run, ingested, { licenseeName: options.licenseeName, generatedAt: options.generatedAt, preparedBy: 'DrayComply' });
+  const binder = buildBinder(run, ingested, { licenseeName: options.licenseeName, generatedAt: options.generatedAt, preparedBy: 'DrayComply', interpretations: LEGAL_INTERPRETATIONS, extraScope: [] });
   return { kind: 'completed', ingested, run, binder };
 }

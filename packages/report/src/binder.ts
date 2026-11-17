@@ -1,6 +1,7 @@
 // The audit binder as plain data. Everything a reader needs is here; the PDF only lays it out.
 import type { Delta, DriverResult, Finding, Gap, PeriodResult, RecordsVerdict, RuleEvaluation, RunResult, ScopeNote, Verdict } from '../../engine/src/index';
 import type { IngestResult, ManifestEntry, Reject } from '../../ingest/src/index';
+import { pendingLegalReview, type LegalInterpretation } from './interpretations';
 
 type CompletedRun = Extract<RunResult, { kind: 'completed' }>;
 type CompletedIngest = Extract<IngestResult, { kind: 'completed' }>;
@@ -10,6 +11,8 @@ export interface BinderMeta {
   readonly licenseeName: string;
   readonly generatedAt: string;
   readonly preparedBy: string;
+  readonly interpretations: readonly LegalInterpretation[];   // the registry; the binder lists those this run relied on
+  readonly extraScope: readonly string[];                     // limits the caller applied, such as a driver selection
 }
 
 export interface BinderHeader {
@@ -23,6 +26,8 @@ export interface BinderHeader {
   readonly rounding: string;
   readonly deductionPolicyId: string;
   readonly unverifiedRatesNotice: string | null;   // non-null whenever an unverified schedule priced anything
+  readonly watermark: string | null;               // painted across every page; non-null on the same condition
+  readonly legalReviewNotice: string | null;       // non-null whenever the run relied on an unreviewed interpretation
   readonly disclaimer: string;
 }
 
@@ -65,6 +70,7 @@ export interface AuditBinder {
   readonly header: BinderHeader;
   readonly summary: BinderSummary;
   readonly scope: readonly string[];
+  readonly pendingLegalReview: readonly LegalInterpretation[];
   readonly schedules: readonly { readonly id: string; readonly status: string; readonly verifiedBy: string | null }[];
   readonly manifest: readonly ManifestEntry[];
   readonly inputSources: readonly { readonly name: string; readonly digest: string }[];
@@ -75,6 +81,8 @@ export interface AuditBinder {
   readonly worksheets: readonly Worksheet[];
 }
 
+export const WATERMARK = 'UNVERIFIED RATES - NOT FOR RELIANCE';
+export const NO_SHORTFALL_WORDING = 'No shortfall detected under the rules as encoded, for the data provided.';
 export const DISCLAIMER = 'This binder reports calculations under the rules as encoded, for the data provided. It is not legal advice and is not a statement that any person has or has not met a legal obligation.';
 
 // Integer cents to text. String work only.
@@ -132,6 +140,7 @@ export function buildBinder(run: CompletedRun, ingested: CompletedIngest | null,
   const periods = run.drivers.flatMap(d => d.periods);
   const unverified = run.provenance.schedules.filter(s => s.status !== 'verified').map(s => s.id);
   const rejects = ingested?.rejects ?? [];
+  const pending = pendingLegalReview(run, meta.interpretations);
   const verdicts = (v: Verdict): number => run.drivers.filter(d => d.verdict === v).length;
   const records = (v: RecordsVerdict): number => run.drivers.filter(d => d.recordsVerdict === v).length;
   return {
@@ -141,6 +150,9 @@ export function buildBinder(run: CompletedRun, ingested: CompletedIngest | null,
       engineVersion: run.provenance.engineVersion, asOf: run.provenance.asOf, rounding: run.provenance.rounding, deductionPolicyId: run.provenance.deductionPolicyId,
       unverifiedRatesNotice: unverified.length === 0 ? null
         : `UNVERIFIED RATES WERE USED. These schedules are transcriptions that no second person has checked against the source: ${unverified.join(', ')}. Figures that rest on them may be wrong.`,
+      watermark: unverified.length === 0 ? null : WATERMARK,
+      legalReviewNotice: pending.length === 0 ? null
+        : `PENDING LEGAL REVIEW. This calculation relies on ${pending.length} legal interpretation(s) that no lawyer has reviewed: ${pending.map(i => i.id).join(', ')}. They are listed in section 8.`,
       disclaimer: DISCLAIMER,
     },
     summary: {
@@ -162,8 +174,10 @@ export function buildBinder(run: CompletedRun, ingested: CompletedIngest | null,
       rejectedRows: new Set(rejects.map(x => `${x.table}|${x.file}|${x.rowNumber}`)).size,
       unattributedRejects: ingested?.unattributedRejects ?? 0,
     },
+    pendingLegalReview: pending,
     scope: [
       ...run.scope.map(n => n.sentence),
+      ...meta.extraScope,
       ...(ingested === null ? ['The input was supplied directly, not through file ingest, so no file manifest or reject list exists for it.'] : [ingested.statement]),
       ...(ingested !== null && ingested.withheldDrivers.length > 0
         ? [`${ingested.withheldDrivers.length} driver(s) were withheld from the calculation because rows in their records were rejected. No figure in this binder covers them.`] : []),

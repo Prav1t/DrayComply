@@ -8,8 +8,9 @@ import { ingest } from '../../ingest/src/index';
 import { SAMPLE_CSV, sampleFiles, sampleTemplate } from '../../ingest/src/testing/sample';
 import { runCompliance } from '../../engine/src/index';
 import { DEDUCTION_POLICY, OBCCTC_SCHEDULES } from '../../engine/src/adapters/obcctc';
+import { LEGAL_INTERPRETATIONS } from '../../rates/legal-interpretations';
 
-const META = { licenseeName: 'Sample Drayage Ltd.', generatedAt: '2026-11-16T20:00:00.000Z', preparedBy: 'test' };
+const META = { licenseeName: 'Sample Drayage Ltd.', generatedAt: '2026-11-16T20:00:00.000Z', preparedBy: 'test', interpretations: LEGAL_INTERPRETATIONS, extraScope: [] };
 const OPTIONS = { asOf: '2026-11-16', rounding: 'half_up' as const, deductionPolicy: DEDUCTION_POLICY };
 
 function binderFor(replace: Record<string, string> = {}) {

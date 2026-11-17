@@ -20,6 +20,7 @@ export function layout(b: AuditBinder): Block[] {
     t('text', `${h.licenseeName} (${h.licenseeId})`),
     // The unverified-rates notice sits directly under the title, before any figure.
     ...(h.unverifiedRatesNotice === null ? [] : [t('notice', h.unverifiedRatesNotice)]),
+    ...(h.legalReviewNotice === null ? [] : [t('notice', h.legalReviewNotice)]),
     t('notice', h.disclaimer),
     pair('Generated', h.generatedAt), pair('Prepared by', h.preparedBy), pair('Run date (as of)', h.asOf),
     pair('Engine version', h.engineVersion), pair('Rounding', h.rounding), pair('Deduction policy', h.deductionPolicyId),
@@ -70,6 +71,15 @@ export function layout(b: AuditBinder): Block[] {
     ...(b.withheldDrivers.map(w => t('text', `Driver ${w.driverId} withheld: ${w.rejectedRows} rejected row(s).`))),
     ...(b.rejects.length === 0 ? [NONE] : b.rejects.map(r =>
       t('small', `${r.file} row ${r.rowNumber}, ${r.table}${r.field === null ? '' : `.${r.field}`}: ${r.reason}${r.raw === '' ? '' : ` (value: "${r.raw}")`}`))),
+
+    t('h1', '8. Legal interpretations pending review'),
+    t('small', 'Each is a reading of the law this calculation relied on. None has been reviewed by a lawyer. A different reading would change the figures as described.'),
+    ...(b.pendingLegalReview.length === 0 ? [NONE] : b.pendingLegalReview.flatMap(i => [
+      pair(`${i.id}: ${i.title}`, 'pending legal review'),
+      t('small', `Reading used: ${i.reading}`),
+      t('small', `Other reading: ${i.alternative}`),
+      t('small', `Recorded in: ${i.record}`),
+    ])),
   ];
 
   for (const w of b.worksheets) {
