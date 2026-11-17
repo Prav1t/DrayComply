@@ -18,14 +18,19 @@ interface Props {
   readonly files: readonly SourceFile[];
   readonly initial: unknown;                                         // a loaded template to edit, or null
   readonly onUse: (template: unknown, name: string) => void;
+  readonly tables?: readonly TableKind[];                            // the tables shown; every other table is declared "no records"
+  readonly useLabel?: string;
 }
 
-export function TemplateBuilder({ files, initial, onUse }: Props) {
+export function TemplateBuilder({ files, initial, onUse, tables, useLabel }: Props) {
+  const shown: readonly TableKind[] = tables ?? TABLE_KINDS;
   const [draft, setDraft] = useState<Draft>(() => {
     const parsed = initial === null ? null : parseTemplate(initial);
-    return parsed !== null && parsed.kind === 'ok' ? templateToDraft(parsed.template) : emptyDraft();
+    const start = parsed !== null && parsed.kind === 'ok' ? templateToDraft(parsed.template) : emptyDraft();
+    const hidden = Object.fromEntries(TABLE_KINDS.filter(k => !shown.includes(k)).map(k => [k, { ...start.tables[k], use: 'none' as const }]));
+    return { ...start, tables: { ...start.tables, ...hidden } };
   });
-  const [active, setActive] = useState<TableKind>('drivers');
+  const [active, setActive] = useState<TableKind>(shown[0] ?? 'drivers');
   const template = useMemo(() => draftToTemplate(draft), [draft]);
   const checked = useMemo(() => parseTemplate(template), [template]);
   const problems = [
@@ -59,7 +64,7 @@ export function TemplateBuilder({ files, initial, onUse }: Props) {
       <p className="muted">Declare every table: map it to a file, or state that there are no records of that kind. Nothing is filled in for you.</p>
 
       <nav className="steps">
-        {TABLE_KINDS.map((table, i) => {
+        {shown.map((table, i) => {
           const issues = tableIssues(draft, table).length;
           const state = draft.tables[table].use === 'unset' ? 'todo' : issues === 0 ? 'done' : 'todo';
           return (
@@ -73,8 +78,8 @@ export function TemplateBuilder({ files, initial, onUse }: Props) {
       <TableEditor key={active} table={active} label={TABLE_LABELS[active]} draft={draft.tables[active]} files={files} issues={tableIssues(draft, active)}
         rawMapping={draftTable(draft, active)} onTable={patch => setTable(active, patch)} onField={(name, patch) => setField(active, name, patch)} />
       <div className="row">
-        <button type="button" className="secondary" disabled={TABLE_KINDS.indexOf(active) === 0} onClick={() => setActive(TABLE_KINDS[TABLE_KINDS.indexOf(active) - 1] ?? active)}>Back</button>
-        <button type="button" className="secondary" disabled={TABLE_KINDS.indexOf(active) === TABLE_KINDS.length - 1} onClick={() => setActive(TABLE_KINDS[TABLE_KINDS.indexOf(active) + 1] ?? active)}>Next table</button>
+        <button type="button" className="secondary" disabled={shown.indexOf(active) === 0} onClick={() => setActive(shown[shown.indexOf(active) - 1] ?? active)}>Back</button>
+        <button type="button" className="secondary" disabled={shown.indexOf(active) === shown.length - 1} onClick={() => setActive(shown[shown.indexOf(active) + 1] ?? active)}>Next table</button>
       </div>
 
       {problems.length > 0 ? (
@@ -84,7 +89,7 @@ export function TemplateBuilder({ files, initial, onUse }: Props) {
         </div>
       ) : <div className="banner note">The template is complete.</div>}
       <div className="row">
-        <button type="button" disabled={problems.length > 0} onClick={() => onUse(template, `${draft.name.trim()} (built here)`)}>Use this template</button>
+        <button type="button" disabled={problems.length > 0} onClick={() => onUse(template, `${draft.name.trim()} (built here)`)}>{useLabel ?? 'Use this template'}</button>
         <button type="button" className="secondary" disabled={problems.length > 0} onClick={download}>Save template (JSON)</button>
       </div>
     </div>
