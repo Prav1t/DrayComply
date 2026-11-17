@@ -22,7 +22,9 @@
     "db:generate": "drizzle-kit generate --config packages/db/drizzle.config.ts",
     "db:migrate": "tsx packages/db/src/migrate.ts",
     "db:seed-demo": "tsx apps/web/scripts/seed-demo.ts",
-    "dev": "npm run dev -w @draycomply/web"
+    "dev": "npm run dev -w @draycomply/web",
+    "org:create": "tsx apps/web/scripts/create-org.ts",
+    "db:purge-expired": "tsx apps/web/scripts/purge-expired.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
