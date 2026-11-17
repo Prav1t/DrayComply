@@ -92,3 +92,16 @@ Things only a person can get, check or decide. Nothing here was filled in from a
 20. **Not yet tried in a browser:** Safari and Firefox; a large file (tens of thousands of rows); a workbook with several sheets.
 
 ## D. Nothing in this session spent money, created an account, contacted anyone, published or deployed.
+
+## E. Production mode (2026-11-16)
+
+21. **Prisma could not be used here** (DECISIONS 120). If you want Prisma specifically, say so and it can be swapped on a machine that can download its engines. Otherwise nothing to do.
+22. **An email provider**, if you want password reset, email verification or emailed invitations. Needs an account (for example Postmark or Amazon SES in ca-central-1). Until then a forgotten password means you reset it by hand in the database.
+23. **Create the hosting accounts and deploy**: follow `DEPLOY.md`. Creates a DigitalOcean account and spends about US$27 a month.
+24. **A domain name** for `APP_URL`.
+25. **The Docker image has never been built.** No Docker daemon runs in this workspace. The first deploy is the first build; `DEPLOY.md` step 3 builds it locally first.
+26. **Confirm with DigitalOcean that Managed PostgreSQL backups for a TOR1 cluster are stored in Canada.** I could not find a statement either way. If they are not, the privacy policy's "stored in Canada" claim is wrong for backups.
+27. **Confirm the header App Platform uses for the caller's address** (`do-connecting-ip` is set in the spec from memory, not verified). If it is wrong, every visitor shares one rate-limit bucket: sign-in still works, but one attacker could lock sign-in for everyone for 15 minutes.
+28. **A lawyer for the privacy policy and terms** (both marked DRAFT), including the bracketed TO CONFIRM items, and a named privacy contact, which PIPA requires.
+29. **An error tracker**, if you want alerts. Set `ERROR_WEBHOOK_URL`; a Sentry or similar account is needed.
+30. **Try the app as a payroll clerk would**, with a real export. The screens were checked by script and by two screenshots, not by a person doing the job.

@@ -7,7 +7,7 @@ declare global {
 }
 
 export function database(): Database {
-  globalThis.draycomplyDatabase ??= createDatabase(env().databaseUrl);
+  globalThis.draycomplyDatabase ??= createDatabase(env().databaseUrl, 10, env().databaseCaCert);
   return globalThis.draycomplyDatabase;
 }
 export const db = (): Db => database().db;

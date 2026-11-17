@@ -1,12 +1,31 @@
 # DrayComply
 
-- `packages/rates`: one file per OBCCTC schedule, each with an integrity suite. Only `obcctc-2026-07-01.ts` is verified.
-- `packages/engine`: the pure compliance engine (v0.4.0).
-- `packages/ingest`: reads CSV and XLSX exports into engine input, with a reject list and file hashes.
-- `packages/report`: turns a run into an audit binder (data) and a PDF.
-- `apps/web`: a Next.js 15 page that runs the whole pipeline in the browser. Start it with `npx next dev apps/web`.
-- `DECISIONS.md`, `NEEDS_HUMAN.md`, `CHECKPOINTS.md`, `HANDOFF.md`: the working record.
+Recomputes what Port of Vancouver container truck drivers were owed under the Container Trucking Act and the Commissioner's rate orders, compares it with what was paid, and reports shortfalls. It reports calculations, never legal advice.
 
-Run `npm install`, then `npx tsc --noEmit -p .` and `npx vitest run`.
+| Part | What it is |
+|---|---|
+| `packages/rates` | Rate schedules as data, one file per schedule, plus the deduction policy and the list of legal readings. Only `obcctc-2026-07-01.ts` is verified |
+| `packages/engine` | The pure calculation engine (v0.6.0). No clock, no I/O, no dependencies |
+| `packages/ingest` | CSV and XLSX to engine input through a mapping template, with a reject list |
+| `packages/report` | A run to an audit binder and a PDF, with the watermark and the pending-legal-review list |
+| `packages/db` | Postgres schema (Drizzle), SQL migrations, immutability triggers |
+| `apps/web` | The Next.js 15 app: sign-in, organizations, drivers, uploads, mapping, runs, reports |
 
-Browser checks: build and start the app (`cd apps/web && npx next build && npx next start -p 3111`), then `npm run e2e`. Needs Chrome; set `CHROME_PATH` if it is not at `/usr/bin/google-chrome`.
+## Commands
+
+    npm install
+    npm run check              # lint, typecheck, unit tests, build
+    npm run test:integration   # needs Postgres; see .env.example
+    npm run e2e                # needs Postgres, a build, and Chrome (CHROME_PATH or `npx playwright install chromium`)
+    npm run check:full         # all of the above
+
+Local development:
+
+    cp .env.example .env && set -a && . ./.env && set +a
+    createdb dray_dev && npm run db:migrate
+    DEMO_EMAIL=demo@example.test DEMO_PASSWORD='demo password 123' npm run db:seed-demo
+    npm run dev                # http://localhost:3000
+
+## Where things are written down
+
+`STATUS.md` (what exists), `HANDOFF.md` (where work stopped), `DECISIONS.md`, `NEEDS_HUMAN.md`, `RELEASE_BLOCKERS.md`, `CHECKPOINTS.md`, `DEPLOY.md`, `docs/OPERATIONS.md`, `docs/RETENTION.md`.

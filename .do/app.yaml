@@ -1,0 +1,41 @@
+# DigitalOcean App Platform spec. Everything is in Toronto (tor). See DEPLOY.md before using it.
+name: draycomply
+region: tor
+services:
+  - name: web
+    dockerfile_path: Dockerfile
+    github:
+      repo: Prav1t/DrayComply
+      branch: main          # deploy from main only; v-2 must be merged first
+      deploy_on_push: false # a release is a deliberate act, not a side effect of a push
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-1gb   # check the current slug and price on the pricing page
+    health_check:
+      http_path: /api/health
+      initial_delay_seconds: 30
+      period_seconds: 30
+    envs:
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+        value: ${db.DATABASE_URL}
+      - key: DATABASE_CA_CERT
+        scope: RUN_TIME
+        type: SECRET
+        value: ${db.CA_CERT}
+      - key: APP_URL
+        scope: RUN_TIME
+        value: https://REPLACE-WITH-YOUR-DOMAIN
+      - key: SIGNUP_OPEN
+        scope: RUN_TIME
+        value: "false"
+      - key: CLIENT_IP_HEADER
+        scope: RUN_TIME
+        value: do-connecting-ip
+databases:
+  - name: db
+    engine: PG
+    version: "16"
+    production: true
+    cluster_name: draycomply-db   # the managed cluster you create first, in TOR1

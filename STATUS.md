@@ -25,6 +25,29 @@ Tests at the start: **437 passing in 31 files**, plus 6 browser checks. Strict t
 | 5. Report | Partial | Finished in this session: watermark, pending-legal-review list. |
 | 6. App | First version | Replaced by the production queue. |
 
-## Finished before the app (this session)
+## State at the end of this session (2026-11-16, branch `v-2`)
 
-See the latest section at the bottom.
+| Part | State |
+|---|---|
+| `packages/rates` | Unchanged values. Added `legal-interpretations.ts` (LI-01 to LI-09, none reviewed) |
+| `packages/engine` v0.6.0 | Added `restrictPeriods`. `runCompliance` unchanged |
+| `packages/ingest` | Unchanged |
+| `packages/report` | Finished: watermark, pending-legal-review section, caller scope notes |
+| `packages/db` | New. Drizzle schema, two migrations, immutability triggers |
+| `apps/web` | Production app: sign-in, organizations, roles, drivers, data sets, templates, check, runs, reports, settings, export, deletion, demo, privacy and terms drafts. The old in-browser page is at `/try` |
+
+Tests: **467 unit (34 files), 65 integration on Postgres (5 files), 5 Playwright.** Lint and typecheck clean. Build succeeds.
+
+| Production queue | State |
+|---|---|
+| 1. Monorepo hygiene and CI | Done |
+| 2. Data layer | Done, on Drizzle instead of Prisma (DECISIONS 120) |
+| 3. Auth and tenancy | Done. No password reset or email verification (needs an email provider) |
+| 4. Upload and mapping | Done |
+| 5. Driver setup | Done. A driver cannot be deleted yet, only edited |
+| 6. Runs | Done |
+| 7. Reports | Done |
+| 8. Production readiness | Done in code. Legal, privacy and security review are people's work: `RELEASE_BLOCKERS.md` |
+| 9. Deployment preparation | Done. Not deployed. Docker image never built |
+
+Not ready for a customer to rely on: see `RELEASE_BLOCKERS.md`. The largest items are rate verification, legal review, and the missing 2023 to 2025 trip tables.

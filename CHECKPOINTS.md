@@ -152,3 +152,49 @@
 - Tests: 437 passing in 31 files, plus 6 browser checks. DECISIONS 114 to 119. NEEDS_HUMAN 19 and 20 rewritten.
 - New: `apps/web/e2e/smoke.mjs`, `apps/web/app/icon.svg`, `packages/report/src/totals.ts` (+ test).
   Changed: `packages/report/src/{binder,layout,pdf,index}.ts`, `apps/web/lib/builder.ts` (+ test), `apps/web/components/{Workbench,TemplateBuilder}.tsx`, `package.json`.
+
+# Production mode (branch v-2), 2026-11-16
+
+## Step 0 and package finish. DONE
+- `STATUS.md` written. Report package finished: watermark "UNVERIFIED RATES - NOT FOR RELIANCE" on every page, section 8 listing unreviewed legal readings, caller scope notes. Engine v0.6.0: `restrictPeriods`.
+- Broken on purpose, each caught: watermark not painted; watermark never set; "reviewed" without a named reviewer; verdict not rolled up again after a period selection.
+- Tests 437 to 454. DECISIONS 121 to 125.
+
+## Item 1: monorepo hygiene. DONE
+- npm workspaces; `npm run check` (lint, typecheck, unit tests, build); `npm run check:full`; GitHub Actions with three jobs on every push.
+- ESLint added; vitest 2 to 5; `npm audit` from 11 advisories to 4 moderate, all in a development tool.
+- No existing test was changed. DECISIONS 146 to 148.
+
+## Item 2: data layer. DONE, with a deviation
+- **Drizzle, not Prisma** (DECISIONS 120, NEEDS_HUMAN 21): Prisma's engines cannot be downloaded here.
+- 18 tables. Every customer table carries `organization_id`; references between them include it. Triggers refuse UPDATE, DELETE and TRUNCATE on six append-only tables.
+- Broken on purpose: run trigger weakened to DELETE only; two tests failed.
+- 13 integration tests on Postgres 16. DECISIONS 129, 131, 133.
+
+## Item 3: auth and tenancy. DONE
+- Email and password, scrypt, database sessions, roles owner, payroll and viewer, invitations, rate limits, origin check.
+- 28 attack calls across every identifier route as another organization: all 404. A test fails if a route is added without being listed.
+- Broken on purpose, each caught: organization filter removed from run lookup and from report download; origin check off; role check off.
+- DECISIONS 126 to 130, 141, 142.
+
+## Items 4 to 7: uploads, mapping, drivers, runs, reports. DONE
+- Originals stored with SHA-256; re-upload supersedes; reject list with a reason per row; nothing filled in.
+- Drivers: create, import (all or nothing), dated class periods with no overlaps, hours for other licensees.
+- Runs: roster snapshot, driver and period selection, stored input and result with a hash checked on every read, "Recompute and compare".
+- Reports: stored PDF with scope statement and liability wording, download.
+- DECISIONS 132, 134 to 139.
+
+## Item 8: production readiness. DONE except what needs a person
+- Security headers, file type and size checks including a zip-bomb guard, no customer data in logs (tested), export and deletion (tested), draft privacy and terms pages, health check, error hook, retention and operations docs, demo organization.
+- Playwright: 5 end-to-end tests, including the full flow and the six earlier workbench checks.
+- Found by the browser and fixed: Next passes no `params` to a route without a dynamic segment, which crashed every such route in production only. Integration tests had always passed one.
+- DECISIONS 140, 143, 149, 151 to 153. NEEDS_HUMAN 22, 28 to 30.
+
+## Item 9: deployment preparation. DONE, nothing deployed
+- DigitalOcean App Platform and Managed PostgreSQL, both Toronto. `Dockerfile`, `.do/app.yaml`, `.env.example`, `DEPLOY.md`.
+- The image has never been built: no Docker here (NEEDS_HUMAN 25).
+- DECISIONS 144, 145, 150 (billing). NEEDS_HUMAN 23 to 27. `RELEASE_BLOCKERS.md` written.
+
+## Totals
+- 467 unit tests in 34 files; 65 integration tests in 5 files on real Postgres; 5 Playwright tests. Lint and strict typecheck clean; production build succeeds.
+- Nothing spent money, created an account, contacted anyone, published or deployed.
