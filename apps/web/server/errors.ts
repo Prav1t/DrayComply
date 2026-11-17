@@ -15,7 +15,9 @@ export const invalid = (message: string, details: readonly string[] = []): AppEr
 // Error tracking hook. Sends the error's name and where it happened, never its message or any request data.
 export async function reportError(error: unknown, where: { readonly route: string; readonly requestId: string }): Promise<void> {
   const errorName = error instanceof Error ? error.name : 'non_error';
-  log('error', { event: 'unhandled_error', route: where.route, requestId: where.requestId, errorName, code: pgCode(error) });
+  // The first stack frame says where it broke. The message is left out: it can quote a value from a file or a row.
+  const frame = error instanceof Error ? (error.stack ?? '').split('\n').find(l => l.trimStart().startsWith('at ')) ?? '' : '';
+  log('error', { event: 'unhandled_error', route: where.route, requestId: where.requestId, errorName, code: pgCode(error), where: frame.trim() });
   const url = safeEnvWebhook();
   if (url === null) return;
   try {

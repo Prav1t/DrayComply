@@ -1,5 +1,5 @@
 // Structured logs. Only the fields listed here are ever written, so customer data cannot leak into logs.
-const ALLOWED = ['event', 'requestId', 'route', 'method', 'status', 'ms', 'organizationId', 'userId', 'entity', 'entityId', 'count', 'bytes', 'code', 'errorName', 'stage'] as const;
+const ALLOWED = ['event', 'requestId', 'route', 'method', 'status', 'ms', 'organizationId', 'userId', 'entity', 'entityId', 'count', 'bytes', 'code', 'errorName', 'stage', 'where'] as const;
 type Field = (typeof ALLOWED)[number];
 export type LogFields = Partial<Record<Field, string | number | null>>;
 

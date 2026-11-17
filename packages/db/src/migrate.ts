@@ -1,6 +1,7 @@
 // Applies every pending migration to DATABASE_URL. Run on each release, before the app starts.
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import { createDatabase, MIGRATIONS_FOLDER } from './index';
+import { createDatabase } from './index';
+import { MIGRATIONS_FOLDER } from './paths';
 
 const url = process.env['DATABASE_URL'];
 if (url === undefined || url === '') {

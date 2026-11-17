@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
 
-const BASE = process.env.BASE_URL ?? 'http://localhost:3111/';
+const BASE = process.env.BASE_URL ?? 'http://localhost:3111/try';
 const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH ?? '/usr/bin/google-chrome', args: ['--no-sandbox'] });
 const dir = mkdtempSync(join(tmpdir(), 'draycomply-e2e-'));
 const file = (name, text) => { const p = join(dir, name); writeFileSync(p, text); return p; };

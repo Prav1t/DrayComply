@@ -16,4 +16,3 @@ export function createDatabase(url: string, max = 10): Database {
   return { db: drizzle(pool, { schema }), pool };
 }
 
-export const MIGRATIONS_FOLDER = new URL('../migrations', import.meta.url).pathname;

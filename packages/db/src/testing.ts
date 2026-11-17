@@ -2,7 +2,8 @@
 import { randomBytes } from 'node:crypto';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import pg from 'pg';
-import { createDatabase, MIGRATIONS_FOLDER, type Database } from './index';
+import { createDatabase, type Database } from './index';
+import { MIGRATIONS_FOLDER } from './paths';
 
 export const TEST_DATABASE_URL = process.env['TEST_DATABASE_URL'] ?? 'postgresql://dray:dray@localhost:5432/postgres';
 

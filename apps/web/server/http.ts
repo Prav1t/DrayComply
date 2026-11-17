@@ -87,7 +87,8 @@ async function run(name: string, req: Request, context: NextContext, access: Acc
     checkOrigin(req);
     const length = Number(req.headers.get('content-length') ?? '0');
     if (length > LIMITS.maxRequestBytes) throw new AppError(413, 'too_large', 'The request is too large.');
-    const raw = await context.params;
+    // At run time Next passes no params to a route without a dynamic segment, whatever its types say.
+    const raw = (await context.params) ?? {};
     const params: Params = Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, Array.isArray(v) ? v.join('/') : v ?? '']));
     const session = access.kind === 'public' ? await sessionFromToken(cookieToken(req), now).catch(() => null) : await sessionFromToken(cookieToken(req), now);
     if (access.kind !== 'public' && session === null) throw new AppError(401, 'signed_out', 'Sign in to continue.');
