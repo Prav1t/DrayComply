@@ -179,3 +179,14 @@ Each entry: the choice, the alternative, one line of reasoning. Newest section l
 | 111 | Two containers on-dock under the Regulation is a gap | Pay the one-container rate | Section 12 states 1.5x for off-dock only, the same silence as the 2026 order, handled the same way |
 | 112 | Off-dock table totals are pinned in tests as checksums of my own transcription | No checksum | Guards against later accidental edits only. It cannot catch a misread shared by both reads of the page |
 | 113 | Employee callout under the Regulation stays untranscribed | Encode 4x hourly from May 14, 2015 | Second read agrees on 4x, but section 16 is still headed for operators paid per trip. DECISIONS 98 stands until someone reads the section by eye |
+
+## 2026-11-16: browser test of the app, and what it found
+
+| # | Choice | Alternative | Why |
+|---|---|---|---|
+| 114 | The app is now driven in a real headless Chrome by `apps/web/e2e/smoke.mjs` (`npm run e2e`, against a built app on port 3111). Playwright is a dev dependency, using the machine's own Chrome | Component tests in jsdom | A real browser found three defects that unit tests could not. It is not part of `vitest run` because it needs a running server |
+| 115 | Totals read "Not computed" when no pay period could be computed, and state how many pay periods they cover. One shared rule (`totalsView` in packages/report) feeds the web page and the PDF | Keep "$0.00" | "$0.00 short" with zero drivers evaluated reads as a clean result. That is the most misleading thing the product could print |
+| 116 | The builder preselects no money unit, time unit or list separator | Default to dollars, decimal hours and ";" | DEFECT FIXED. A cents column read as dollars inflates every payment 100 times and hides shortfalls. The screen says "nothing is filled in for you"; now that is true |
+| 117 | A field declared "not in this file" needs no format | Ask for one anyway | DEFECT FIXED. A date field could never be marked not-in-file, because the format control was hidden but still required. No value is ever read through that format |
+| 118 | The CSV separator (comma) and header row (1) keep their defaults | Force a choice | A wrong separator or header row shows at once as wrong columns in the builder, unlike a wrong unit |
+| 119 | A PDF heading now needs room for a few lines under it or it moves to the next page | Leave it | The "Gaps" heading sat alone at the foot of a page |

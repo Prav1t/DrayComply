@@ -63,8 +63,9 @@ export async function renderPdf(binder: AuditBinder): Promise<Uint8Array> {
   const paint = (b: Block): void => {
     switch (b.kind) {
       case 'title': write(b.text, bold, 20, { gapAfter: 6 }); return;
-      case 'h1': room(40); y -= 10; write(b.text, bold, 13, { gapAfter: 4 }); return;
-      case 'h2': room(30); y -= 6; write(b.text, bold, 11, { gapAfter: 3 }); return;
+      // A heading needs room for itself and a few lines under it, or it moves to the next page.
+      case 'h1': room(76); y -= 10; write(b.text, bold, 13, { gapAfter: 4 }); return;
+      case 'h2': room(56); y -= 6; write(b.text, bold, 11, { gapAfter: 3 }); return;
       case 'text': write(b.text, regular, 10); return;
       case 'small': write(b.text, regular, 8.5, { indent: 10, grey: true }); return;
       case 'mono': write(b.text, mono, 8, { indent: 10 }); return;

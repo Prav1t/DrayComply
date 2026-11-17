@@ -22,6 +22,21 @@ describe('template builder state', () => {
     const draft: Draft = { ...d, tables: { ...d.tables, hours: { ...d.tables.hours, fields: { ...d.tables.hours.fields, workDate: { ...workDate, dateFormat: '' } } } } };
     expect(errors(draft)).toEqual(['hours.workDate: needs a valid source, format and blank']);
   });
+  it('refuses a money or time column until its unit is chosen: no unit is ever preselected', () => {
+    expect([EMPTY_FIELD.moneyUnit, EMPTY_FIELD.durationUnit, EMPTY_FIELD.separator]).toEqual(['', '', '']);
+    const d = templateToDraft(sample());
+    const set = (table: 'hours' | 'payments', field: string, patch: Partial<typeof EMPTY_FIELD>): Draft =>
+      ({ ...d, tables: { ...d.tables, [table]: { ...d.tables[table], fields: { ...d.tables[table].fields, [field]: { ...(d.tables[table].fields[field] ?? EMPTY_FIELD), ...patch } } } } });
+    expect(errors(set('hours', 'duration', { durationUnit: '' }))).toEqual(['hours.duration: needs a valid source, format and blank']);
+    expect(errors(set('payments', 'amount', { moneyUnit: '' }))).toEqual(['payments.amount: needs a valid source, format and blank']);
+    expect(errors(set('hours', 'duration', { durationUnit: 'minutes' }))).toEqual([]);
+  });
+  it('lets a date field be declared "not in this file" without asking for a format it would never use', () => {
+    const d = templateToDraft(sample());
+    const classTo = { ...EMPTY_FIELD, source: 'not_provided' as const };
+    const draft: Draft = { ...d, tables: { ...d.tables, drivers: { ...d.tables.drivers, fields: { ...d.tables.drivers.fields, classTo } } } };
+    expect(errors(draft)).toEqual([]);
+  });
   it('round-trips a saved template through the form unchanged', () => {
     const t = sample();
     expect(parseTemplate(draftToTemplate(templateToDraft(t)))).toEqual({ kind: 'ok', template: t });

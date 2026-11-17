@@ -142,3 +142,13 @@
 - Tests: 430 passing in 30 files. DECISIONS 106 to 113. NEEDS_HUMAN 4 rewritten, 4a to 4c added.
 - Changed: `packages/rates/ctr-2014-04-03.ts`, `ctr-2018-06-01.ts`, `ctr-2019-06-01.ts` and the first two test suites;
   `packages/engine/src/adapters/obcctc.ts`, `trip/owed.ts`, `assemble/result.ts`, `version.ts`, `adapters/history.test.ts`. None replaces a project knowledge file.
+
+## Browser test of the app. DONE 2026-11-16
+
+- Six checks in headless Chrome: sample run and PDF download; uploaded files with a template saved from the builder; broken template
+  and rejected rows; a table built from scratch; an Excel file; phone width.
+- Found and fixed: "$0.00 short" shown when nothing was computed (web and PDF); units preselected in the builder; a date field that
+  could not be marked "not in this file"; a missing page icon (404); no hint to choose an Excel sheet; an orphaned PDF heading.
+- Tests: 437 passing in 31 files, plus 6 browser checks. DECISIONS 114 to 119. NEEDS_HUMAN 19 and 20 rewritten.
+- New: `apps/web/e2e/smoke.mjs`, `apps/web/app/icon.svg`, `packages/report/src/totals.ts` (+ test).
+  Changed: `packages/report/src/{binder,layout,pdf,index}.ts`, `apps/web/lib/builder.ts` (+ test), `apps/web/components/{Workbench,TemplateBuilder}.tsx`, `package.json`.

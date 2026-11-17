@@ -158,6 +158,7 @@ function TableEditor({ table, label, draft, files, issues, rawMapping, onTable, 
           </>
         )}
       </div>
+      {draft.use === 'mapped' && file !== undefined && file.format === 'xlsx' && draft.sheet === '' && <p className="muted">Choose the sheet to see its columns. No sheet is picked for you, even when the workbook has only one.</p>}
       {seen !== null && seen.kind === 'error' && <div className="banner bad">{seen.message}</div>}
       {seen !== null && seen.kind === 'ok' && headers.length > 0 && <p className="muted">{seen.dataRows} data row(s), {headers.length} column(s).</p>}
 
@@ -238,17 +239,17 @@ function FieldRow({ table, name, spec, draft, headers, values, onChange }: Field
             <option value="">Choose the date format</option>{DATE_FORMATS.map(f => <option key={f} value={f}>{f === 'excel_serial' ? 'Spreadsheet date number' : f}</option>)}
           </select>
         )}
-        {spec.type === 'money' && (
-          <select value={draft.moneyUnit} onChange={e => { const v = e.target.value; if (v === 'dollars' || v === 'cents') onChange({ moneyUnit: v }); }}>
-            <option value="dollars">Dollars (12.34)</option><option value="cents">Whole cents (1234)</option>
+        {spec.type === 'money' && draft.source !== 'not_provided' && (
+          <select value={draft.moneyUnit} onChange={e => { const v = e.target.value; if (v === '' || v === 'dollars' || v === 'cents') onChange({ moneyUnit: v }); }}>
+            <option value="">Choose dollars or cents</option><option value="dollars">Dollars (12.34)</option><option value="cents">Whole cents (1234)</option>
           </select>
         )}
-        {spec.type === 'duration' && (
-          <select value={draft.durationUnit} onChange={e => { const v = e.target.value; if (v === 'hours' || v === 'minutes' || v === 'hh:mm') onChange({ durationUnit: v }); }}>
-            <option value="hours">Decimal hours (8.5)</option><option value="minutes">Minutes (510)</option><option value="hh:mm">Hours and minutes (8:30)</option>
+        {spec.type === 'duration' && draft.source !== 'not_provided' && (
+          <select value={draft.durationUnit} onChange={e => { const v = e.target.value; if (v === '' || v === 'hours' || v === 'minutes' || v === 'hh:mm') onChange({ durationUnit: v }); }}>
+            <option value="">Choose the time unit</option><option value="hours">Decimal hours (8.5)</option><option value="minutes">Minutes (510)</option><option value="hh:mm">Hours and minutes (8:30)</option>
           </select>
         )}
-        {spec.type === 'list' && <label>Separator<input type="text" value={draft.separator} onChange={e => onChange({ separator: e.target.value })} style={{ minWidth: 50, width: 50 }} /></label>}
+        {spec.type === 'list' && draft.source !== 'not_provided' && <label>Separator<input type="text" value={draft.separator} onChange={e => onChange({ separator: e.target.value })} style={{ minWidth: 50, width: 50 }} /></label>}
         {spec.type === 'integer' && <span className="muted">Whole number</span>}
         {spec.type === 'enum' && raw.length > 0 && (
           <div>

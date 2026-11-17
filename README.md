@@ -8,3 +8,5 @@
 - `DECISIONS.md`, `NEEDS_HUMAN.md`, `CHECKPOINTS.md`, `HANDOFF.md`: the working record.
 
 Run `npm install`, then `npx tsc --noEmit -p .` and `npx vitest run`.
+
+Browser checks: build and start the app (`cd apps/web && npx next build && npx next start -p 3111`), then `npm run e2e`. Needs Chrome; set `CHROME_PATH` if it is not at `/usr/bin/google-chrome`.

@@ -7,9 +7,9 @@ export interface FieldDraft {
   readonly header: string;
   readonly constant: string;
   readonly dateFormat: string;                        // must be chosen; a date's meaning depends on it
-  readonly moneyUnit: 'dollars' | 'cents';
-  readonly durationUnit: 'hours' | 'minutes' | 'hh:mm';
-  readonly separator: string;
+  readonly moneyUnit: '' | 'dollars' | 'cents';         // must be chosen: cents read as dollars inflates every payment 100 times
+  readonly durationUnit: '' | 'hours' | 'minutes' | 'hh:mm';   // must be chosen
+  readonly separator: string;                         // must be typed
   readonly valueMap: Readonly<Record<string, string>>; // raw value -> mapped value
   readonly acceptBlank: boolean;
 }
@@ -25,7 +25,7 @@ export interface TableDraft {
 
 export interface Draft { readonly id: string; readonly name: string; readonly version: number; readonly tables: Readonly<Record<TableKind, TableDraft>> }
 
-export const EMPTY_FIELD: FieldDraft = { source: '', header: '', constant: '', dateFormat: '', moneyUnit: 'dollars', durationUnit: 'hours', separator: ';', valueMap: {}, acceptBlank: false };
+export const EMPTY_FIELD: FieldDraft = { source: '', header: '', constant: '', dateFormat: '', moneyUnit: '', durationUnit: '', separator: '', valueMap: {}, acceptBlank: false };
 
 const emptyTable = (table: TableKind): TableDraft =>
   ({ use: 'unset', file: '', sheet: '', headerRow: 1, delimiter: ',', fields: Object.fromEntries(Object.keys(SPECS[table]).map(name => [name, EMPTY_FIELD])) });
@@ -37,8 +37,14 @@ const tables = (make: (t: TableKind) => TableDraft): Record<TableKind, TableDraf
 
 export const emptyDraft = (): Draft => ({ id: '', name: '', version: 1, tables: tables(emptyTable) });
 
+// A field that is not in the file has no values to read, so its format is never applied; these only satisfy the template's shape.
+const UNREAD: Readonly<Record<string, unknown>> = {
+  date: { kind: 'date', format: 'YYYY-MM-DD' }, money: { kind: 'money', unit: 'dollars' }, duration: { kind: 'duration', unit: 'hours' }, list: { kind: 'list', separator: ';' },
+};
+
 function format(table: TableKind, name: string, f: FieldDraft): unknown {
   const type = SPECS[table][name]?.type;
+  if (f.source === 'not_provided' && type !== undefined && Object.hasOwn(UNREAD, type)) return UNREAD[type];
   switch (type) {
     case 'text': return { kind: 'text', map: f.valueMap };
     case 'enum': return { kind: 'enum', values: f.valueMap };
@@ -78,9 +84,9 @@ function fieldDraft(m: FieldMapping): FieldDraft {
     header: m.source.kind === 'column' ? m.source.header : '',
     constant: m.source.kind === 'constant' ? m.source.value : '',
     dateFormat: fmt.kind === 'date' ? fmt.format : '',
-    moneyUnit: fmt.kind === 'money' ? fmt.unit : 'dollars',
-    durationUnit: fmt.kind === 'duration' ? fmt.unit : 'hours',
-    separator: fmt.kind === 'list' ? fmt.separator : ';',
+    moneyUnit: fmt.kind === 'money' ? fmt.unit : '',
+    durationUnit: fmt.kind === 'duration' ? fmt.unit : '',
+    separator: fmt.kind === 'list' ? fmt.separator : '',
     valueMap: fmt.kind === 'text' ? fmt.map : fmt.kind === 'enum' ? fmt.values : {},
     acceptBlank: m.blank === 'accept',
   };

@@ -86,9 +86,9 @@ Things only a person can get, check or decide. Nothing here was filled in from a
     names Tailwind, a component library, an auth provider or a database, tell me and I will change it.
 18. **Decisions only Pravit can make for the app:** where it is hosted, whether runs and templates are stored (and in what database),
     and whether users sign in. Each needs an account or spends money, so I have not done any of them.
-19. **The app's click-through has not been tested in a real browser.** It builds, the page renders, and the pipeline behind the
-    button is unit-tested. Run `npx next dev apps/web`, click "Load the built-in sample", then "Run calculation".
-20. **The template builder (now table by table, with a row preview) has not been clicked through in a real browser** (same limit as item 19). Try it with the
-    built-in sample: load the sample, click "Edit this template", change a mapping, "Use this template", then run.
+19. **DONE by machine, still worth a human look.** The app and the template builder were driven in headless Chrome on 2026-11-16
+    (six checks, `npm run e2e`; DECISIONS 114 to 119). Three defects were found and fixed. What a script cannot judge: whether the
+    screens make sense to a payroll clerk. Run `npx next dev apps/web` and try it with a real export.
+20. **Not yet tried in a browser:** Safari and Firefox; a large file (tens of thousands of rows); a workbook with several sheets.
 
 ## D. Nothing in this session spent money, created an account, contacted anyone, published or deployed.

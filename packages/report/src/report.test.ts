@@ -94,6 +94,18 @@ describe('binder', () => {
     expect(gap.gaps.map(g => g.code)).toEqual(['WAIT_TIME_NOT_REPORTED']);
     expect(allText(gap)).toContain('not computable (see gaps)');
   });
+  it('says the totals leave out the pay period that could not be computed', () => {
+    const gap = binderFor(swap('periods.csv', 'licensee,50.00', 'licensee,'));
+    expect([gap.summary.periodsTotal, gap.summary.periodsNotComputable]).toEqual([2, 1]);
+    expect(allText(gap)).toContain('Totals cover 1 of 2 pay period(s). The other 1 could not be computed and are not in the totals.');
+  });
+  it('prints "Not computed", never $0.00, when every driver was withheld', () => {
+    const none = binderFor({ 'payments.csv': (SAMPLE_CSV['payments.csv'] ?? '').replace('"$293.76"', 'abc').replace('IO1,P1,Fuel,63.94', 'IO1,P1,Fuel,sixty') });
+    expect(none.summary.driversEvaluated).toBe(0);
+    expect(allText(none)).toContain('Total shortfall, aggregate comparison Not computed');
+    expect(allText(none)).toContain('Total shortfall, segregated comparison Not computed');
+    expect(allText(none)).not.toContain('Total shortfall, aggregate comparison $0.00');
+  });
   it('never says compliant, and always carries the disclaimer', () => {
     [clean, binderFor(swap('payments.csv', 'IO1,P1,Trip,139.00', 'IO1,P1,Trip,120.00'))].forEach(b => {
       expect(allText(b).toLowerCase()).not.toContain('compliant');

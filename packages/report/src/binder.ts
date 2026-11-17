@@ -33,6 +33,7 @@ export interface BinderSummary {
   readonly byRecordsVerdict: Readonly<Record<RecordsVerdict, number>>;
   readonly aggregateShortfallCents: number;    // sum of the period shortfalls on the aggregate comparison
   readonly segregatedShortfallCents: number;   // the same on the segregated comparison
+  readonly periodsTotal: number;
   readonly periodsNotComputable: number;
   readonly findingCount: number;
   readonly gapCount: number;
@@ -154,6 +155,7 @@ export function buildBinder(run: CompletedRun, ingested: CompletedIngest | null,
       },
       aggregateShortfallCents: periods.reduce((t, p) => t + shortfall(p.aggregate), 0),
       segregatedShortfallCents: periods.reduce((t, p) => t + shortfall(p.segregated), 0),
+      periodsTotal: periods.length,
       periodsNotComputable: periods.filter(p => p.aggregate.kind !== 'computed').length,
       findingCount: periods.reduce((t, p) => t + p.findings.length, 0),
       gapCount: periods.reduce((t, p) => t + p.gaps.length, 0) + run.drivers.reduce((t, d) => t + d.gaps.length, 0),

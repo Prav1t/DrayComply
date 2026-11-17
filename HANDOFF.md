@@ -44,14 +44,14 @@ Reply "continue" and I resume here.
 
 Regulation trip schedules are in where the source is text (CHECKPOINTS, last entry). Engine is v0.5.0.
 NEXT unblocked work, in order of value:
-(1) click-test the app (a person, or the Chrome tool if Pravit connects it);
+(1) DONE by script (`npm run e2e`, six checks); a person should still try it with a real export;
 (2) saved templates and runs, once Pravit picks storage;
 (3) more deduction research (about 190 unread decisions; past licences).
 Rate data is now blocked on people everywhere: see NEEDS_HUMAN 1, 2, 4 and 5.
 
 ## Nothing is half-edited
 
-Every file on disk is complete and the suite is green: 430 tests, 30 files, strict typecheck clean. Engine is v0.5.0.
+Every file on disk is complete and the suite is green: 437 tests, 31 files, plus 6 browser checks (`npm run e2e` against `next start -p 3111`), strict typecheck clean. Engine is v0.5.0.
 Everything is pushed to https://github.com/Prav1t/DrayComply (branch main) after each item.
 
 ## How to run

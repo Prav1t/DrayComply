@@ -1,5 +1,6 @@
 // Binder to a flat list of blocks, in reading order. The PDF painter knows nothing about compliance.
 import { formatCents, recordsText, verdictText, type AuditBinder } from './binder';
+import { totalsView } from './totals';
 
 export type Block =
   | { readonly kind: 'title' | 'h1' | 'h2' | 'text' | 'small' | 'notice' | 'mono'; readonly text: string }
@@ -13,6 +14,7 @@ const NONE = t('text', 'None.');
 export function layout(b: AuditBinder): Block[] {
   const h = b.header;
   const s = b.summary;
+  const totals = totalsView(s.aggregateShortfallCents, s.segregatedShortfallCents, s.periodsTotal, s.periodsNotComputable);
   const blocks: Block[] = [
     t('title', h.title),
     t('text', `${h.licenseeName} (${h.licenseeId})`),
@@ -30,9 +32,9 @@ export function layout(b: AuditBinder): Block[] {
     pair(verdictText('shortfall_segregated_only'), s.byVerdict.shortfall_segregated_only),
     pair(verdictText('insufficient_data'), s.byVerdict.insufficient_data),
     pair('Drivers with a records finding', s.byRecordsVerdict.records_finding),
-    pair('Total shortfall, aggregate comparison', formatCents(s.aggregateShortfallCents)),
-    pair('Total shortfall, segregated comparison', formatCents(s.segregatedShortfallCents)),
-    t('small', 'The two comparisons are different readings of the same payments. Both are reported; neither is presented as the answer. Totals cover computable pay periods only.'),
+    pair('Total shortfall, aggregate comparison', totals.aggregate),
+    pair('Total shortfall, segregated comparison', totals.segregated),
+    t('small', `${totals.coverage} The two comparisons are different readings of the same payments. Both are reported; neither is presented as the answer.`),
     pair('Pay periods not computable', s.periodsNotComputable), pair('Findings', s.findingCount), pair('Gaps', s.gapCount),
     pair('Rejected input rows', s.rejectedRows), pair('Rejected rows tied to no driver', s.unattributedRejects),
 

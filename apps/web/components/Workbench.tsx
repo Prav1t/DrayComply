@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { SourceFile } from '../../../packages/ingest/src/index';
 import type { RoundingMode, Verdict } from '../../../packages/engine/src/index';
-import { formatDelta, formatCents, recordsText, renderPdf, verdictText } from '../../../packages/report/src/index';
+import { formatDelta, formatCents, recordsText, renderPdf, totalsView, verdictText } from '../../../packages/report/src/index';
 import { sampleFiles, sampleTemplate } from '../../../packages/ingest/src/testing/sample';
 import { runPipeline, type PipelineResult } from '../lib/pipeline';
 import { TemplateBuilder } from './TemplateBuilder';
@@ -140,6 +140,7 @@ export function Workbench() {
 function Results({ result, onDownload }: { result: Extract<PipelineResult, { kind: 'completed' }>; onDownload: () => void }) {
   const { binder, run, ingested } = result;
   const s = binder.summary;
+  const totals = totalsView(s.aggregateShortfallCents, s.segregatedShortfallCents, s.periodsTotal, s.periodsNotComputable);
   return (
     <>
       <section className="card">
@@ -149,12 +150,12 @@ function Results({ result, onDownload }: { result: Extract<PipelineResult, { kin
         <div className="stats">
           <div className="stat"><b>{s.driversEvaluated}</b><span>Drivers evaluated</span></div>
           <div className="stat"><b>{s.driversWithheld}</b><span>Drivers withheld (rejected rows)</span></div>
-          <div className="stat"><b>{formatCents(s.aggregateShortfallCents)}</b><span>Total short, aggregate comparison</span></div>
-          <div className="stat"><b>{formatCents(s.segregatedShortfallCents)}</b><span>Total short, segregated comparison</span></div>
+          <div className="stat"><b>{totals.aggregate}</b><span>Total short, aggregate comparison</span></div>
+          <div className="stat"><b>{totals.segregated}</b><span>Total short, segregated comparison</span></div>
           <div className="stat"><b>{s.byVerdict.insufficient_data}</b><span>Drivers with insufficient data</span></div>
           <div className="stat"><b>{s.rejectedRows}</b><span>Rejected input rows</span></div>
         </div>
-        <p className="muted">The two comparisons are different readings of the same payments. Both are shown; neither is presented as the answer.</p>
+        <p className="muted">{totals.coverage} The two comparisons are different readings of the same payments. Both are shown; neither is presented as the answer.</p>
         <button type="button" onClick={onDownload}>Download the binder (PDF)</button>
       </section>
 
