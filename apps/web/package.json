@@ -1,7 +1,16 @@
 {
   "name": "@draycomply/web",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": { "dev": "next dev", "build": "next build", "start": "next start" },
-  "dependencies": { "next": "^15.5.0", "react": "^19.0.0", "react-dom": "^19.0.0" }
+  "dependencies": {
+    "decimal.js": "^10.6.0",
+    "drizzle-orm": "^0.45.4",
+    "fflate": "^0.8.3",
+    "next": "^15.5.29",
+    "pdf-lib": "^1.17.1",
+    "pg": "^8.23.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  }
 }
